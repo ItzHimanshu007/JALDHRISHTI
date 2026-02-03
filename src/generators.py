@@ -176,41 +176,85 @@ class ValleyTerrainGenerator:
 
 
 class VillageBoundaryGenerator:
-    """Generates village boundary polygon encompassing habitable zone."""
+    """Generates village boundary polygon encompassing the entire simulation area."""
     
-    def __init__(self, terrain: ValleyTerrainGenerator):
+    # Village-specific bounding boxes matching frontend SIMULATION_CONFIG
+    # Format: [minLon, minLat, maxLon, maxLat]
+    VILLAGE_BBOX = {
+        "wayanad_meppadi": {
+            "bbox": [76.10, 11.52, 76.17, 11.59],
+            "name": "Wayanad Meppadi Village",
+            "area_km2": 14.8
+        },
+        "darbhanga": {
+            "bbox": [85.85, 26.12, 85.93, 26.19],
+            "name": "Darbhanga District",
+            "area_km2": 15.2
+        },
+        "dhemaji": {
+            "bbox": [94.53, 27.45, 94.60, 27.51],
+            "name": "Dhemaji District",
+            "area_km2": 13.6
+        }
+    }
+    
+    def __init__(self, terrain: ValleyTerrainGenerator, village_id: str = "wayanad_meppadi"):
         self.terrain = terrain
+        self.village_id = village_id
         
     def generate_boundary(self, elevation_threshold: float = 750.0) -> Dict:
         """
-        Generate boundary polygon for habitable zone.
-        Includes valley floor and lower slopes.
+        Generate boundary polygon covering the entire simulation/flood tile area.
+        Creates a natural-looking boundary with slight organic variations.
         """
-        if self.terrain.heightmap is None:
-            self.terrain.generate_heightmap()
+        # Get village-specific bbox or default to wayanad
+        village_config = self.VILLAGE_BBOX.get(self.village_id, self.VILLAGE_BBOX["wayanad_meppadi"])
+        bbox = village_config["bbox"]
         
-        config = self.terrain.config
-        size = config.grid_size
+        min_lon, min_lat, max_lon, max_lat = bbox
         
-        # Find habitable zone (below elevation threshold)
-        habitable = self.terrain.heightmap < elevation_threshold
+        # Add slight padding to ensure complete coverage (2% padding)
+        padding_lon = (max_lon - min_lon) * 0.02
+        padding_lat = (max_lat - min_lat) * 0.02
         
-        # Create simplified boundary (octagon-like shape for the valley)
-        # This follows the valley contour
+        min_lon -= padding_lon
+        min_lat -= padding_lat
+        max_lon += padding_lon
+        max_lat += padding_lat
+        
+        # Create boundary with organic variations for natural appearance
+        # Using 48 points for smooth curves
         boundary_points = []
+        num_points = 48
         
-        # Sample points along the boundary
-        for angle in np.linspace(0, 2 * np.pi, 32, endpoint=False):
-            # Elliptical shape following valley
-            # Narrower east-west, longer north-south
-            radius_x = 0.3 + 0.1 * np.sin(angle * 2)  # Variable radius
-            radius_y = 0.4 + 0.05 * np.cos(angle * 3)
+        # Generate points along the perimeter with slight organic variations
+        for i in range(num_points):
+            t = i / num_points
             
-            x = radius_x * np.cos(angle)
-            y = radius_y * np.sin(angle)
+            # Add small noise for organic feel (±1% variation)
+            noise_factor = 0.01
+            noise = math.sin(t * 12 * math.pi) * noise_factor
             
-            lat = config.center_lat + y * config.grid_resolution * size * 0.5
-            lon = config.center_lon + x * config.grid_resolution * size * 0.5
+            if t < 0.25:
+                # Bottom edge (west to east)
+                progress = t / 0.25
+                lon = min_lon + progress * (max_lon - min_lon)
+                lat = min_lat + noise * (max_lat - min_lat)
+            elif t < 0.5:
+                # Right edge (south to north)
+                progress = (t - 0.25) / 0.25
+                lon = max_lon + noise * (max_lon - min_lon)
+                lat = min_lat + progress * (max_lat - min_lat)
+            elif t < 0.75:
+                # Top edge (east to west)
+                progress = (t - 0.5) / 0.25
+                lon = max_lon - progress * (max_lon - min_lon)
+                lat = max_lat + noise * (max_lat - min_lat)
+            else:
+                # Left edge (north to south)
+                progress = (t - 0.75) / 0.25
+                lon = min_lon + noise * (max_lon - min_lon)
+                lat = max_lat - progress * (max_lat - min_lat)
             
             boundary_points.append([lon, lat])
         
@@ -220,9 +264,11 @@ class VillageBoundaryGenerator:
         return {
             "type": "Feature",
             "properties": {
-                "name": "Valley Village Boundary",
+                "name": village_config["name"],
+                "village_id": self.village_id,
                 "type": "administrative",
-                "habitable_area_km2": 12.5
+                "habitable_area_km2": village_config["area_km2"],
+                "bbox": bbox
             },
             "geometry": {
                 "type": "Polygon",
@@ -391,8 +437,8 @@ class PopulationHeatmapGenerator:
         }
 
 
-def generate_all_data(config: TerrainConfig = None) -> Dict[str, Any]:
-    """Generate all synthetic data for the valley village."""
+def generate_all_data(config: TerrainConfig = None, village_id: str = "wayanad_meppadi") -> Dict[str, Any]:
+    """Generate all synthetic data for the specified village."""
     if config is None:
         config = TerrainConfig()
     
@@ -401,7 +447,7 @@ def generate_all_data(config: TerrainConfig = None) -> Dict[str, Any]:
     terrain.generate_heightmap()
     terrain.calculate_slope()
     
-    boundary_gen = VillageBoundaryGenerator(terrain)
+    boundary_gen = VillageBoundaryGenerator(terrain, village_id=village_id)
     infra_gen = InfrastructureGenerator(terrain)
     pop_gen = PopulationHeatmapGenerator(terrain)
     
