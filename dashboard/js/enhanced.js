@@ -613,25 +613,25 @@ function syncUI() {
     }
 
     const monthlyProb = (village.forecast?.yearly?.yearly_summary?.flood_probability * 100).toFixed(0);
-    safeUpdate('valMonthly', `${monthlyProb} %`);
+    safeUpdate('valMonthly', `${monthlyProb}%`);
 
-    // Update Chart Title Header with more info
-    const chartTitle = document.querySelector('#yearlyChart').closest('.glass-panel').querySelector('.panel-header');
-    if (chartTitle) {
-        const yearlySummary = village.forecast?.yearly?.yearly_summary || {};
-        const totalRainfall = Math.round(yearlySummary.expected_rainfall_mm || 0);
-        const peakMonth = yearlySummary.peak_risk_month || 'July';
-        const highRiskDays = yearlySummary.total_high_risk_days || 0;
-        chartTitle.innerHTML = `
-            <span style="display:flex; align-items:center; gap:6px;">
-                <span class="layer-icon">📊</span> 
-                ${village.info.name} - 2026 Forecast
-            </span>
-            <span style="font-size:0.65rem; color:var(--text-muted); font-weight:400;">
-                Total: ${totalRainfall.toLocaleString()}mm | Peak: ${peakMonth} | ⚠️${highRiskDays} risk days
-            </span>
-        `;
+    // Update Risk Badge
+    const riskBadge = document.getElementById('riskBadge');
+    if (riskBadge) {
+        riskBadge.textContent = weeklyStatus;
+        riskBadge.style.background = weeklyStatus === 'WARNING' ? 'rgba(239, 68, 68, 0.15)' :
+            weeklyStatus === 'WATCH' ? 'rgba(249, 115, 22, 0.15)' :
+            weeklyStatus === 'MONITOR' ? 'rgba(234, 179, 8, 0.15)' : 'rgba(34, 197, 94, 0.15)';
+        riskBadge.style.color = weeklyStatus === 'WARNING' ? '#ef4444' :
+            weeklyStatus === 'WATCH' ? '#f97316' :
+            weeklyStatus === 'MONITOR' ? '#eab308' : '#22c55e';
+        riskBadge.style.borderColor = weeklyStatus === 'WARNING' ? 'rgba(239, 68, 68, 0.3)' :
+            weeklyStatus === 'WATCH' ? 'rgba(249, 115, 22, 0.3)' :
+            weeklyStatus === 'MONITOR' ? 'rgba(234, 179, 8, 0.3)' : 'rgba(34, 197, 94, 0.3)';
     }
+
+    // Update Model Intelligence with enhanced data
+    updateModelIntelligence(village, summary, confidence);
 
     updateMapVision(village);
     generateSoilGrid(village); // [NEW] Generate soil data
@@ -973,16 +973,10 @@ function renderShortTermForecast() {
         }
     });
 
-    // Update panel header with forecast summary
-    const panelHeader = cvs.closest('.glass-panel')?.querySelector('.panel-header');
+    // Update panel header with forecast summary (works with new neo-panel structure)
+    const panelHeader = cvs.closest('.neo-panel')?.querySelector('.neo-panel-header') || cvs.closest('.glass-panel')?.querySelector('.panel-header');
     if (panelHeader && forecast && forecast.fetchedAt) {
-        const fetchTime = new Date(forecast.fetchedAt);
-        panelHeader.innerHTML = `
-            <span>Short-term Rainfall (7-Day)</span>
-            <span style="font-size:0.6rem; color:var(--text-muted); font-weight:400;">
-                Total: ${total}mm | ${highRiskDays > 0 ? '⚠️' + highRiskDays + ' rainy days' : '☀️ Mostly dry'}
-            </span>
-        `;
+        // Don't modify the neo-panel header structure, just update summary
     }
 
     const summaryEl = document.getElementById('forecastSummary');
@@ -995,6 +989,78 @@ function renderShortTermForecast() {
             summaryEl.textContent = `Expected: ${total}mm over 7 days`;
         } else {
             summaryEl.textContent = `Loading forecast...`;
+        }
+    }
+}
+
+/**
+ * Update Model Intelligence panel with enhanced data and visualizations
+ */
+function updateModelIntelligence(village, summary, confidence) {
+    const safeUpdate = (id, val) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = val;
+    };
+
+    // Terrain Analysis
+    const terrainType = village.info?.terrain_type || '';
+    const isHilly = terrainType.includes('hilly') || terrainType.includes('ghats');
+    const terrainStatus = isHilly ? 'DYNAMIC' : 'STABLE';
+    const terrainScore = isHilly ? 75 : 40;
+    
+    safeUpdate('intelStability', terrainStatus);
+    const stabilityBar = document.getElementById('intelStabilityBar');
+    if (stabilityBar) {
+        stabilityBar.style.width = `${terrainScore}%`;
+        stabilityBar.style.background = isHilly ? 
+            'linear-gradient(90deg, #f97316, #ef4444)' : 
+            'linear-gradient(90deg, #22c55e, #06b6d4)';
+    }
+
+    // Hydro Focus
+    const hydroFocus = isHilly ? 'LANDSLIDE' : 'RIVERINE';
+    const hydroScore = isHilly ? 85 : 60;
+    
+    safeUpdate('intelFocus', hydroFocus);
+    const focusBar = document.getElementById('intelFocusBar');
+    if (focusBar) {
+        focusBar.style.width = `${hydroScore}%`;
+    }
+
+    // Impact Prediction
+    const riskArea = (summary?.peak_risk_score || 0) * 12.5;
+    const impactPrediction = `${Math.round(riskArea * 1.4)}km² Affected`;
+    safeUpdate('intelImpact', impactPrediction);
+
+    // Model Accuracy Circle
+    const accuracyPercent = Math.round(confidence * 100);
+    safeUpdate('modelAccuracy', `${accuracyPercent}%`);
+    
+    const accuracyCircle = document.getElementById('accuracyCircle');
+    if (accuracyCircle) {
+        accuracyCircle.setAttribute('stroke-dasharray', `${accuracyPercent}, 100`);
+        // Color based on accuracy
+        if (accuracyPercent >= 90) {
+            accuracyCircle.style.stroke = '#22c55e';
+        } else if (accuracyPercent >= 80) {
+            accuracyCircle.style.stroke = '#06b6d4';
+        } else {
+            accuracyCircle.style.stroke = '#eab308';
+        }
+    }
+
+    // Model Status
+    const statusEl = document.getElementById('modelStatus');
+    if (statusEl) {
+        if (accuracyPercent >= 90) {
+            statusEl.textContent = 'High Confidence';
+            statusEl.style.color = '#22c55e';
+        } else if (accuracyPercent >= 80) {
+            statusEl.textContent = 'Good Confidence';
+            statusEl.style.color = '#06b6d4';
+        } else {
+            statusEl.textContent = 'Moderate Confidence';
+            statusEl.style.color = '#eab308';
         }
     }
 }
