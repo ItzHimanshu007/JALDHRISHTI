@@ -163,7 +163,14 @@ async function fetchLiveWeather(lat, lon) {
     if (elTemp) elTemp.style.opacity = '0.5';
 
     try {
-        const response = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&hourly=relativehumidity_2m`);
+        // Fetch comprehensive weather data including 7-day forecast
+        const response = await fetch(
+            `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}` +
+            `&current_weather=true` +
+            `&hourly=relativehumidity_2m,precipitation,precipitation_probability` +
+            `&daily=precipitation_sum,precipitation_probability_max,temperature_2m_max,temperature_2m_min,weathercode` +
+            `&timezone=auto&forecast_days=7`
+        );
         const data = await response.json();
 
         if (data.current_weather) {
@@ -182,8 +189,10 @@ async function fetchLiveWeather(lat, lon) {
                 elTemp.style.opacity = '1';
             }
 
-            document.getElementById('weatherWind').textContent = wind;
-            document.getElementById('weatherHum').textContent = humidity;
+            const windEl = document.getElementById('weatherWind');
+            const humEl = document.getElementById('weatherHum');
+            if (windEl) windEl.textContent = wind;
+            if (humEl) humEl.textContent = humidity;
 
             // Map WMO codes to icons/text
             const wmo = {
@@ -202,18 +211,42 @@ async function fetchLiveWeather(lat, lon) {
                 71: { icon: '🌨️', text: 'Slight Snow' },
                 73: { icon: '🌨️', text: 'Moderate Snow' },
                 75: { icon: '❄️', text: 'Heavy Snow' },
+                80: { icon: '🌧️', text: 'Rain Showers' },
+                81: { icon: '🌧️', text: 'Moderate Showers' },
+                82: { icon: '⛈️', text: 'Heavy Showers' },
                 95: { icon: '⚡', text: 'Thunderstorm' },
                 96: { icon: '⛈️', text: 'Thunderstorm & Hail' },
                 99: { icon: '⛈️', text: 'Heavy Thunderstorm' },
             };
 
             const condition = wmo[code] || { icon: '❓', text: 'Unknown' };
-            document.getElementById('weatherIcon').textContent = condition.icon;
-            document.getElementById('weatherDesc').textContent = condition.text;
+            const iconEl = document.getElementById('weatherIcon');
+            const descEl = document.getElementById('weatherDesc');
+            if (iconEl) iconEl.textContent = condition.icon;
+            if (descEl) descEl.textContent = condition.text;
 
             // Update Time
             const now = new Date();
-            document.getElementById('weatherTime').textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            const timeEl = document.getElementById('weatherTime');
+            if (timeEl) timeEl.textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+            // Store forecast data for short-term chart
+            if (data.daily) {
+                appState.liveWeatherForecast = {
+                    dates: data.daily.time || [],
+                    precipitation: data.daily.precipitation_sum || [],
+                    probability: data.daily.precipitation_probability_max || [],
+                    tempMax: data.daily.temperature_2m_max || [],
+                    tempMin: data.daily.temperature_2m_min || [],
+                    weatherCodes: data.daily.weathercode || [],
+                    fetchedAt: new Date().toISOString()
+                };
+                
+                // Update short-term chart with real data
+                renderShortTermForecast();
+            }
+
+            console.log(`Live Weather Update [${appState.currentVillageId}]: ${temp}°C`);
         }
 
     } catch (e) {
@@ -547,13 +580,37 @@ function syncUI() {
 
     // Charts
     renderEnhancedCharts(village);
-    renderShortTermForecast(village);
+    renderShortTermForecast();
 
-    // Update Weekly/Monthly Badges (Synthetic)
-    const weeklyStates = ['STABLE', 'MONITOR', 'WATCH', 'WARNING', 'STABLE'];
-    const villageColor = village.info.risk === 'extreme' ? '#ef4444' : '#0d9488';
-
-    safeUpdate('valWeekly', weeklyStates[Math.floor(Math.random() * 5)]);
+    // Update Weekly/Monthly Badges based on actual forecast data
+    const forecast = appState.liveWeatherForecast;
+    let weeklyStatus = 'LOADING';
+    
+    if (forecast && forecast.precipitation) {
+        const weeklyPrecip = forecast.precipitation.reduce((a, b) => a + b, 0);
+        const maxDayPrecip = Math.max(...forecast.precipitation);
+        const highProbDays = forecast.probability.filter(p => p > 60).length;
+        
+        if (maxDayPrecip > 50 || weeklyPrecip > 150) {
+            weeklyStatus = 'WARNING';
+        } else if (maxDayPrecip > 20 || highProbDays >= 3) {
+            weeklyStatus = 'WATCH';
+        } else if (weeklyPrecip > 30 || highProbDays >= 1) {
+            weeklyStatus = 'MONITOR';
+        } else {
+            weeklyStatus = 'STABLE';
+        }
+    }
+    
+    const weeklyEl = document.getElementById('valWeekly');
+    if (weeklyEl) {
+        weeklyEl.textContent = weeklyStatus;
+        // Color based on status
+        if (weeklyStatus === 'WARNING') weeklyEl.style.color = '#ef4444';
+        else if (weeklyStatus === 'WATCH') weeklyEl.style.color = '#f97316';
+        else if (weeklyStatus === 'MONITOR') weeklyEl.style.color = '#eab308';
+        else weeklyEl.style.color = '#22c55e';
+    }
 
     const monthlyProb = (village.forecast?.yearly?.yearly_summary?.flood_probability * 100).toFixed(0);
     safeUpdate('valMonthly', `${monthlyProb} %`);
@@ -744,44 +801,202 @@ function renderEnhancedCharts(village) {
     }
 }
 
-function renderShortTermForecast(village) {
+function renderShortTermForecast() {
     const cvs = document.getElementById('shortTermChart');
     if (!cvs) return;
 
     const ctx = cvs.getContext('2d');
     if (appState.charts.shortTerm) appState.charts.shortTerm.destroy();
 
-    const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-    const data = Array.from({ length: 7 }, () => Math.random() * 50);
-    const total = data.reduce((a, b) => a + b, 0).toFixed(1);
+    // Use live weather forecast data if available
+    const forecast = appState.liveWeatherForecast;
+    
+    let labels = [];
+    let precipData = [];
+    let probData = [];
+    let tempMaxData = [];
+    let tempMinData = [];
+    
+    if (forecast && forecast.dates && forecast.dates.length > 0) {
+        // Use real API data
+        labels = forecast.dates.map(d => {
+            const date = new Date(d);
+            return date.toLocaleDateString('en-US', { weekday: 'short' });
+        });
+        precipData = forecast.precipitation.map(p => p || 0);
+        probData = forecast.probability.map(p => p || 0);
+        tempMaxData = forecast.tempMax || [];
+        tempMinData = forecast.tempMin || [];
+    } else {
+        // Fallback - show placeholder until data loads
+        labels = ['Today', 'Day 2', 'Day 3', 'Day 4', 'Day 5', 'Day 6', 'Day 7'];
+        precipData = [0, 0, 0, 0, 0, 0, 0];
+        probData = [0, 0, 0, 0, 0, 0, 0];
+    }
+    
+    const total = precipData.reduce((a, b) => a + b, 0).toFixed(1);
+    const maxPrecip = Math.max(...precipData);
+    const highRiskDays = precipData.filter(p => p > 20).length;
 
     appState.charts.shortTerm = new Chart(ctx, {
-        type: 'line',
+        type: 'bar',
         data: {
-            labels: days,
-            datasets: [{
-                label: 'Rainfall (mm)',
-                data: data,
-                borderColor: '#06b6d4',
-                backgroundColor: 'rgba(6, 182, 212, 0.1)',
-                borderWidth: 2,
-                pointRadius: 3,
-                tension: 0.4,
-                fill: true
-            }]
+            labels: labels,
+            datasets: [
+                {
+                    label: 'Rainfall (mm)',
+                    data: precipData,
+                    backgroundColor: precipData.map(p => {
+                        if (p > 50) return 'rgba(239, 68, 68, 0.8)';
+                        if (p > 20) return 'rgba(249, 115, 22, 0.8)';
+                        if (p > 5) return 'rgba(6, 182, 212, 0.7)';
+                        return 'rgba(34, 197, 94, 0.6)';
+                    }),
+                    borderColor: precipData.map(p => {
+                        if (p > 50) return '#ef4444';
+                        if (p > 20) return '#f97316';
+                        if (p > 5) return '#06b6d4';
+                        return '#22c55e';
+                    }),
+                    borderWidth: 2,
+                    borderRadius: 4,
+                    order: 2
+                },
+                {
+                    label: 'Rain Probability %',
+                    data: probData,
+                    type: 'line',
+                    borderColor: '#a855f7',
+                    backgroundColor: 'rgba(168, 85, 247, 0.1)',
+                    borderWidth: 2,
+                    pointRadius: 3,
+                    pointBackgroundColor: probData.map(p => {
+                        if (p > 70) return '#ef4444';
+                        if (p > 40) return '#f97316';
+                        return '#a855f7';
+                    }),
+                    tension: 0.3,
+                    fill: true,
+                    yAxisID: 'y1',
+                    order: 1
+                }
+            ]
         },
         options: {
-            responsive: true, maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
+            responsive: true, 
+            maintainAspectRatio: false,
+            interaction: {
+                mode: 'index',
+                intersect: false
+            },
+            plugins: { 
+                legend: { 
+                    display: true,
+                    position: 'top',
+                    labels: {
+                        color: 'rgba(255,255,255,0.7)',
+                        font: { size: 8 },
+                        boxWidth: 10,
+                        padding: 6
+                    }
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                    titleColor: '#fff',
+                    bodyColor: 'rgba(255,255,255,0.8)',
+                    borderColor: 'rgba(255,255,255,0.1)',
+                    borderWidth: 1,
+                    padding: 8,
+                    callbacks: {
+                        title: (items) => {
+                            if (forecast && forecast.dates) {
+                                const date = new Date(forecast.dates[items[0].dataIndex]);
+                                return date.toLocaleDateString('en-US', { 
+                                    weekday: 'long', 
+                                    month: 'short', 
+                                    day: 'numeric' 
+                                });
+                            }
+                            return items[0].label;
+                        },
+                        afterBody: (items) => {
+                            const idx = items[0].dataIndex;
+                            const lines = [];
+                            if (tempMaxData[idx] !== undefined) {
+                                lines.push(`Temperature: ${tempMinData[idx]}°C - ${tempMaxData[idx]}°C`);
+                            }
+                            const precip = precipData[idx];
+                            if (precip > 50) lines.push('⚠️ Heavy rainfall expected');
+                            else if (precip > 20) lines.push('🌧️ Moderate rainfall');
+                            else if (precip > 5) lines.push('🌦️ Light rainfall');
+                            else lines.push('☀️ Mostly dry');
+                            return lines;
+                        }
+                    }
+                }
+            },
             scales: {
-                y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: 'rgba(255,255,255,0.5)', font: { size: 8 } } },
-                x: { grid: { display: false }, ticks: { color: 'rgba(255,255,255,0.5)', font: { size: 8 } } }
+                y: { 
+                    beginAtZero: true, 
+                    position: 'left',
+                    title: {
+                        display: true,
+                        text: 'mm',
+                        color: 'rgba(255,255,255,0.4)',
+                        font: { size: 8 }
+                    },
+                    grid: { color: 'rgba(255,255,255,0.05)' }, 
+                    ticks: { color: 'rgba(255,255,255,0.5)', font: { size: 8 } } 
+                },
+                y1: {
+                    beginAtZero: true,
+                    max: 100,
+                    position: 'right',
+                    title: {
+                        display: true,
+                        text: '%',
+                        color: 'rgba(168, 85, 247, 0.7)',
+                        font: { size: 8 }
+                    },
+                    grid: { display: false },
+                    ticks: { 
+                        color: 'rgba(168, 85, 247, 0.7)', 
+                        font: { size: 8 },
+                        callback: (val) => val + '%'
+                    }
+                },
+                x: { 
+                    grid: { display: false }, 
+                    ticks: { color: 'rgba(255,255,255,0.5)', font: { size: 8 } } 
+                }
             }
         }
     });
 
+    // Update panel header with forecast summary
+    const panelHeader = cvs.closest('.glass-panel')?.querySelector('.panel-header');
+    if (panelHeader && forecast && forecast.fetchedAt) {
+        const fetchTime = new Date(forecast.fetchedAt);
+        panelHeader.innerHTML = `
+            <span>Short-term Rainfall (7-Day)</span>
+            <span style="font-size:0.6rem; color:var(--text-muted); font-weight:400;">
+                Total: ${total}mm | ${highRiskDays > 0 ? '⚠️' + highRiskDays + ' rainy days' : '☀️ Mostly dry'}
+            </span>
+        `;
+    }
+
     const summaryEl = document.getElementById('forecastSummary');
-    if (summaryEl) summaryEl.textContent = `Total expected: ${total} mm`;
+    if (summaryEl) {
+        if (maxPrecip > 50) {
+            summaryEl.innerHTML = `<span style="color:#ef4444">⚠️ Heavy rain expected: ${total}mm total</span>`;
+        } else if (maxPrecip > 20) {
+            summaryEl.innerHTML = `<span style="color:#f97316">🌧️ Moderate rain: ${total}mm total</span>`;
+        } else if (total > 0) {
+            summaryEl.textContent = `Expected: ${total}mm over 7 days`;
+        } else {
+            summaryEl.textContent = `Loading forecast...`;
+        }
+    }
 }
 
 
