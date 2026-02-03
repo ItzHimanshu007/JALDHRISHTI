@@ -1,0 +1,43 @@
+{
+    "type": "FeatureCollection",
+    "features": [
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "Meppadi Village Boundary",
+                "type": "administrative"
+            },
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [
+                            76.120,
+                            11.540
+                        ],
+                        [
+                            76.150,
+                            11.540
+                        ],
+                        [
+                            76.160,
+                            11.560
+                        ],
+                        [
+                            76.140,
+                            11.580
+                        ],
+                        [
+                            76.110,
+                            11.570
+                        ],
+                        [
+                            76.120,
+                            11.540
+                        ]
+                    ]
+                ]
+            }
+        }
+    ]
+}

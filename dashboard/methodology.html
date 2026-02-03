@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Methodology - Jal Drishti</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Deep Water Professional Theme */
+            --bg-base: #0f172a;
+            --bg-surface: #1e293b;
+            --bg-elevated: #334155;
+            --border-subtle: rgba(148, 163, 184, 0.15);
+            --border-accent: rgba(14, 165, 165, 0.4);
+            --accent-primary: #0d9488;
+            --accent-secondary: #14b8a6;
+            --accent-glow: rgba(20, 184, 166, 0.15);
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --text-muted: #94a3b8;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #0ea5e9;
+            --font-main: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-main);
+            background: var(--bg-base);
+            min-height: 100vh;
+            color: var(--text-primary);
+            line-height: 1.7;
+        }
+
+        /* Navigation */
+        .navbar {
+            background: var(--bg-surface);
+            padding: 0 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 60px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-primary);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.125rem;
+        }
+
+        .nav-brand span {
+            color: var(--accent-secondary);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 0.25rem;
+        }
+
+        .nav-link {
+            color: var(--text-muted);
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .nav-link:hover {
+            background: var(--bg-elevated);
+            color: var(--text-primary);
+        }
+
+        .nav-link.active {
+            background: var(--accent-glow);
+            color: var(--accent-secondary);
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2.5rem 1.5rem;
+        }
+
+        /* Page Header */
+        .page-header {
+            margin-bottom: 2.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .page-header h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .page-header p {
+            color: var(--text-muted);
+            font-size: 1rem;
+        }
+
+        /* Section */
+        .section {
+            margin-bottom: 2.5rem;
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .section-title::before {
+            content: "";
+            width: 4px;
+            height: 1.25rem;
+            background: var(--accent-primary);
+            border-radius: 2px;
+        }
+
+        /* Card */
+        .card {
+            background: var(--bg-surface);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid var(--border-subtle);
+        }
+
+        .card h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            color: var(--accent-secondary);
+        }
+
+        .card p {
+            color: var(--text-secondary);
+            margin-bottom: 0.75rem;
+        }
+
+        .card p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Alert Boxes */
+        .alert {
+            padding: 1rem 1.25rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border-left: 3px solid;
+        }
+
+        .alert.info {
+            background: rgba(14, 165, 233, 0.1);
+            border-color: var(--info);
+        }
+
+        .alert.success {
+            background: rgba(34, 197, 94, 0.1);
+            border-color: var(--success);
+        }
+
+        .alert.warning {
+            background: rgba(245, 158, 11, 0.1);
+            border-color: var(--warning);
+        }
+
+        .alert.danger {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: var(--danger);
+        }
+
+        .alert strong {
+            display: block;
+            margin-bottom: 0.25rem;
+            color: var(--text-primary);
+        }
+
+        .alert p,
+        .alert li {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* Tables */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+            font-size: 0.875rem;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 0.75rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .data-table th {
+            background: var(--bg-elevated);
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .data-table td {
+            color: var(--text-secondary);
+        }
+
+        .data-table tbody tr:hover td {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        /* Formula Box */
+        .formula {
+            background: var(--bg-base);
+            color: var(--accent-secondary);
+            padding: 1rem 1.25rem;
+            border-radius: 6px;
+            font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+            font-size: 0.875rem;
+            margin: 1rem 0;
+            border: 1px solid var(--border-subtle);
+            overflow-x: auto;
+        }
+
+        .formula .comment {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+        }
+
+        /* D8 Grid */
+        .d8-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 48px);
+            gap: 4px;
+            margin: 1rem auto;
+            width: fit-content;
+        }
+
+        .d8-cell {
+            width: 48px;
+            height: 48px;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-accent);
+            color: var(--accent-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+
+        .d8-cell.center {
+            background: var(--accent-primary);
+            color: white;
+            border-color: var(--accent-primary);
+        }
+
+        /* Weight Bars */
+        .weight-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin: 0.75rem 0;
+        }
+
+        .weight-label {
+            flex: 0 0 150px;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .weight-bar-container {
+            flex: 1;
+            height: 8px;
+            background: var(--bg-base);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .weight-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+            border-radius: 4px;
+        }
+
+        .weight-value {
+            flex: 0 0 50px;
+            text-align: right;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--accent-secondary);
+        }
+
+        /* Pipeline Steps */
+        .pipeline {
+            list-style: none;
+            counter-reset: step;
+        }
+
+        .pipeline li {
+            counter-increment: step;
+            padding: 0.75rem 0 0.75rem 3rem;
+            position: relative;
+            border-left: 2px solid var(--border-subtle);
+            margin-left: 1rem;
+            color: var(--text-secondary);
+        }
+
+        .pipeline li:last-child {
+            border-left: 2px solid transparent;
+        }
+
+        .pipeline li::before {
+            content: counter(step);
+            position: absolute;
+            left: -1rem;
+            top: 0.75rem;
+            width: 28px;
+            height: 28px;
+            background: var(--accent-primary);
+            color: white;
+            border-radius: 50%;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .pipeline li strong {
+            color: var(--text-primary);
+        }
+
+        /* Two Column Grid */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .data-box {
+            background: var(--bg-base);
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-subtle);
+        }
+
+        .data-box h4 {
+            font-size: 0.875rem;
+            color: var(--accent-secondary);
+            margin-bottom: 0.75rem;
+            font-weight: 600;
+        }
+
+        .data-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8125rem;
+            padding: 0.35rem 0;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .data-row:last-child {
+            border-bottom: none;
+        }
+
+        .data-row .label {
+            color: var(--text-muted);
+        }
+
+        .data-row .value {
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        /* Risk Levels */
+        .risk-levels {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 0.75rem;
+            margin: 1rem 0;
+        }
+
+        .risk-level {
+            padding: 1rem;
+            border-radius: 8px;
+            border-left: 4px solid;
+        }
+
+        .risk-level.extreme {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: #ef4444;
+        }
+
+        .risk-level.high {
+            background: rgba(249, 115, 22, 0.1);
+            border-color: #f97316;
+        }
+
+        .risk-level.medium {
+            background: rgba(234, 179, 8, 0.1);
+            border-color: #eab308;
+        }
+
+        .risk-level.low {
+            background: rgba(34, 197, 94, 0.1);
+            border-color: #22c55e;
+        }
+
+        .risk-level h4 {
+            font-size: 0.875rem;
+            margin-bottom: 0.25rem;
+            color: var(--text-primary);
+        }
+
+        .risk-level p {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin: 0;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            border-top: 1px solid var(--border-subtle);
+            margin-top: 2rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+            .navbar {
+                padding: 0 1rem;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .container {
+                padding: 1.5rem 1rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <a href="index.html" class="nav-brand">Jal Drishti <span>2.0</span></a>
+        <div class="nav-links">
+            <a href="index.html" class="nav-link">Dashboard</a>
+            <a href="user-guide.html" class="nav-link">User Guide</a>
+            <a href="methodology.html" class="nav-link active">Methodology</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1>Technical Methodology</h1>
+            <p>Hydrological modeling approach for rainfall-driven flood risk assessment in Jal Drishti</p>
+        </div>
+
+        <!-- System Overview -->
+        <div class="section">
+            <h2 class="section-title">System Overview</h2>
+
+            <div class="card">
+                <p>Jal Drishti implements a <strong>raster-based water balance model</strong> that simulates pluvial
+                    (rainfall-driven) flooding. The system processes terrain data, applies hydrological algorithms, and
+                    classifies flood risk using multiple weighted criteria.</p>
+
+                <div class="alert success">
+                    <strong>This system models:</strong>
+                    <p>Pluvial flooding (surface runoff from rainfall) in rural and semi-urban contexts across India</p>
+                </div>
+
+                <div class="alert danger">
+                    <strong>This system does NOT model:</strong>
+                    <ul style="margin: 0.5rem 0 0 1rem;">
+                        <li>River hydraulics or fluvial flooding</li>
+                        <li>Dam/reservoir operations</li>
+                        <li>Urban stormwater infrastructure</li>
+                        <li>Groundwater interactions</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Data Acquisition -->
+        <div class="section">
+            <h2 class="section-title">Data Acquisition Pipeline</h2>
+
+            <div class="card">
+                <p>The system fetches data from multiple open sources to build flood risk assessments:</p>
+
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Source</th>
+                            <th>Data Type</th>
+                            <th>Resolution</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Copernicus GLO-30</strong></td>
+                            <td>Digital Elevation Model (DEM)</td>
+                            <td>30 meters</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Open-Meteo</strong></td>
+                            <td>Rainfall & Soil Moisture</td>
+                            <td>Daily historical</td>
+                        </tr>
+                        <tr>
+                            <td><strong>CHIRPS</strong> (fallback)</td>
+                            <td>Rainfall Archive</td>
+                            <td>~5km daily since 1981</td>
+                        </tr>
+                        <tr>
+                            <td><strong>OpenStreetMap</strong></td>
+                            <td>Building Footprints</td>
+                            <td>Vector</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Terrain Analysis -->
+        <div class="section">
+            <h2 class="section-title">Terrain Analysis (D8 Algorithm)</h2>
+
+            <div class="card">
+                <h3>Slope Calculation</h3>
+                <p>Slope is computed using the gradient of the DEM with a 3×3 moving window:</p>
+                <div class="formula">
+                    slope(degrees) = arctan(√(dz/dx² + dz/dy²)) × (180/π)
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>D8 Flow Direction</h3>
+                <p>The D8 algorithm determines water flow direction from each cell to its steepest downslope neighbor
+                    among 8 surrounding cells:</p>
+
+                <div class="d8-grid">
+                    <div class="d8-cell">32</div>
+                    <div class="d8-cell">64</div>
+                    <div class="d8-cell">128</div>
+                    <div class="d8-cell">16</div>
+                    <div class="d8-cell center">X</div>
+                    <div class="d8-cell">1</div>
+                    <div class="d8-cell">8</div>
+                    <div class="d8-cell">4</div>
+                    <div class="d8-cell">2</div>
+                </div>
+                <p style="text-align: center; font-size: 0.8rem; color: var(--text-muted);">D8 encoding: each cell is
+                    assigned a direction code based on steepest descent</p>
+            </div>
+
+            <div class="card">
+                <h3>Flow Accumulation</h3>
+                <p>Counts the number of upstream cells flowing into each cell. High flow accumulation indicates natural
+                    drainage channels where water concentrates during rainfall events.</p>
+
+                <div class="alert info">
+                    <strong>Sink Filling:</strong>
+                    <p>Local depressions (sinks) in the DEM are filled using an iterative algorithm to ensure continuous
+                        flow paths.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Hydrological Model -->
+        <div class="section">
+            <h2 class="section-title">Hydrological Water Balance Model</h2>
+
+            <div class="card">
+                <h3>Core Equations</h3>
+                <p>The water balance model calculates surface runoff based on rainfall input, infiltration, and terrain
+                    characteristics:</p>
+
+                <div class="formula">
+                    <strong>Infiltration:</strong> I = C_land × R × (1 - saturation)
+                    <div class="comment">Where C_land = infiltration coefficient, R = rainfall, saturation = soil
+                        saturation level</div>
+                </div>
+
+                <div class="formula">
+                    <strong>Surface Runoff:</strong> Q = R - I
+                    <div class="comment">Where Q = surface runoff (mm), R = rainfall (mm), I = infiltration (mm)</div>
+                </div>
+
+                <div class="formula">
+                    <strong>Water Depth:</strong> D = (Q × A_upstream) / A_cell
+                    <div class="comment">Slope constraint applied: water depth reduced on slopes > 15°</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Time Simulation</h3>
+                <p>The model simulates flood progression with snapshots at 4 time steps, allowing visualization of how
+                    risk evolves:</p>
+
+                <div class="grid-2">
+                    <div class="data-box">
+                        <h4>Simulation Timeline</h4>
+                        <div class="data-row"><span class="label">T = 0h</span><span class="value">Initial state</span>
+                        </div>
+                        <div class="data-row"><span class="label">T = 6h</span><span class="value">Early
+                                accumulation</span></div>
+                        <div class="data-row"><span class="label">T = 12h</span><span class="value">Peak
+                                intensity</span></div>
+                        <div class="data-row"><span class="label">T = 24h</span><span class="value">Full event</span>
+                        </div>
+                    </div>
+                    <div class="data-box">
+                        <h4>Infiltration Coefficients</h4>
+                        <div class="data-row"><span class="label">Forest</span><span class="value">0.80</span></div>
+                        <div class="data-row"><span class="label">Agriculture</span><span class="value">0.65</span>
+                        </div>
+                        <div class="data-row"><span class="label">Bare Ground</span><span class="value">0.45</span>
+                        </div>
+                        <div class="data-row"><span class="label">Built-up</span><span class="value">0.15</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Risk Classification -->
+        <div class="section">
+            <h2 class="section-title">Multi-Criteria Risk Classification</h2>
+
+            <div class="card">
+                <h3>Weighted Risk Formula</h3>
+                <p>Risk is calculated by combining multiple normalized factors with predetermined weights:</p>
+
+                <div class="formula">
+                    Risk Score = Σ(weight_i × factor_i)
+                </div>
+
+                <div class="weight-item">
+                    <span class="weight-label">Water Depth</span>
+                    <div class="weight-bar-container">
+                        <div class="weight-bar" style="width: 40%;"></div>
+                    </div>
+                    <span class="weight-value">40%</span>
+                </div>
+                <div class="weight-item">
+                    <span class="weight-label">Slope (inverted)</span>
+                    <div class="weight-bar-container">
+                        <div class="weight-bar" style="width: 25%;"></div>
+                    </div>
+                    <span class="weight-value">25%</span>
+                </div>
+                <div class="weight-item">
+                    <span class="weight-label">Flow Accumulation</span>
+                    <div class="weight-bar-container">
+                        <div class="weight-bar" style="width: 25%;"></div>
+                    </div>
+                    <span class="weight-value">25%</span>
+                </div>
+                <div class="weight-item">
+                    <span class="weight-label">Habitation Proximity</span>
+                    <div class="weight-bar-container">
+                        <div class="weight-bar" style="width: 10%;"></div>
+                    </div>
+                    <span class="weight-value">10%</span>
+                </div>
+
+                <div class="alert info" style="margin-top: 1.5rem;">
+                    <strong>Slope Logic:</strong>
+                    <p>Slope risk is <em>inverted</em>—flat areas (low slope) have higher flood risk because water
+                        accumulates instead of draining naturally.</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Risk Classification Levels</h3>
+                <div class="risk-levels">
+                    <div class="risk-level extreme">
+                        <h4>Extreme Risk</h4>
+                        <p>Score ≥ 0.90</p>
+                    </div>
+                    <div class="risk-level high">
+                        <h4>High Risk</h4>
+                        <p>Score 0.80 – 0.90</p>
+                    </div>
+                    <div class="risk-level medium">
+                        <h4>Medium Risk</h4>
+                        <p>Score 0.60 – 0.80</p>
+                    </div>
+                    <div class="risk-level low">
+                        <h4>Low Risk</h4>
+                        <p>Score < 0.60</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ML Components -->
+        <div class="section">
+            <h2 class="section-title">Machine Learning Components</h2>
+
+            <div class="card">
+                <h3>LSTM Flood Predictor</h3>
+                <p>A Bidirectional LSTM neural network provides 7-day flood probability forecasts based on 30 days of
+                    historical data.</p>
+
+                <div class="grid-2">
+                    <div class="data-box">
+                        <h4>Model Architecture</h4>
+                        <div class="data-row"><span class="label">Input Sequence</span><span class="value">30
+                                days</span></div>
+                        <div class="data-row"><span class="label">Forecast Horizon</span><span class="value">7
+                                days</span></div>
+                        <div class="data-row"><span class="label">Hidden Units</span><span class="value">64</span></div>
+                        <div class="data-row"><span class="label">Dropout</span><span class="value">0.2</span></div>
+                    </div>
+                    <div class="data-box">
+                        <h4>Input Features</h4>
+                        <div class="data-row"><span class="label">Daily rainfall</span><span class="value">✓</span>
+                        </div>
+                        <div class="data-row"><span class="label">3-day cumulative</span><span class="value">✓</span>
+                        </div>
+                        <div class="data-row"><span class="label">7-day cumulative</span><span class="value">✓</span>
+                        </div>
+                        <div class="data-row"><span class="label">Soil moisture</span><span class="value">✓</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>XGBoost Risk Scorer</h3>
+                <p>A gradient boosting model provides seasonal risk assessment using terrain, climate, and historical
+                    flood features.</p>
+
+                <ol class="pipeline">
+                    <li><strong>Feature Extraction:</strong> Terrain stats, rainfall patterns, building density,
+                        historical floods</li>
+                    <li><strong>Seasonal Modeling:</strong> Monsoon multiplier applied (2.0× during June–September)</li>
+                    <li><strong>Calendar Generation:</strong> Monthly risk predictions for yearly planning</li>
+                </ol>
+            </div>
+        </div>
+
+        <!-- Alert Thresholds -->
+        <div class="section">
+            <h2 class="section-title">Alert Thresholds (IMD Standards)</h2>
+
+            <div class="card">
+                <p>Alert levels follow India Meteorological Department (IMD) guidelines for rainfall intensity:</p>
+
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Alert Level</th>
+                            <th>Rainfall (24h)</th>
+                            <th>IMD Category</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="color: #eab308;">● Yellow</td>
+                            <td>≥ 64.5 mm</td>
+                            <td>Heavy Rainfall</td>
+                        </tr>
+                        <tr>
+                            <td style="color: #f97316;">● Orange</td>
+                            <td>≥ 115.5 mm</td>
+                            <td>Very Heavy Rainfall</td>
+                        </tr>
+                        <tr>
+                            <td style="color: #ef4444;">● Red</td>
+                            <td>≥ 204.5 mm</td>
+                            <td>Extremely Heavy Rainfall</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Limitations -->
+        <div class="section">
+            <h2 class="section-title">Limitations & Future Work</h2>
+
+            <div class="card">
+                <h3>Current Limitations</h3>
+                <ul style="color: var(--text-secondary); padding-left: 1.25rem; margin: 0.5rem 0;">
+                    <li>Does not account for existing drainage infrastructure</li>
+                    <li>Assumes uniform rainfall distribution (no spatial variation)</li>
+                    <li>Simplified infiltration model (no detailed soil data)</li>
+                    <li>Static land cover (no seasonal variation)</li>
+                </ul>
+
+                <h3 style="margin-top: 1.5rem;">Recommended Enhancements</h3>
+                <ul style="color: var(--text-secondary); padding-left: 1.25rem; margin: 0.5rem 0;">
+                    <li>Integration with IMD real-time rainfall forecasts</li>
+                    <li>Higher resolution DEM (5–10m) for urban areas</li>
+                    <li>Ground validation with historical flood extent data</li>
+                    <li>Dynamic hydraulic routing for large catchments</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>Jal Drishti • AI-Powered Flood Intelligence • Decision Support Tool</p>
+    </div>
+</body>
+
+</html>

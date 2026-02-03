@@ -1,0 +1,174 @@
+{
+    "villages": {
+        "wayanad_meppadi": {
+            "info": {
+                "id": "wayanad_meppadi",
+                "name": "Meppadi",
+                "district": "Wayanad",
+                "state": "Kerala",
+                "terrain_type": "hilly_ghats",
+                "coordinates": {
+                    "lat": 11.555,
+                    "lon": 76.135
+                },
+                "population": 12500,
+                "boundary_geojson": "data/boundaries/wayanad_meppadi_boundary.geojson",
+                "population_geojson": "data/population/wayanad_meppadi_population.geojson"
+            },
+            "stats": {
+                "elevation_mean": 750,
+                "slope_max": 25.4,
+                "runoff_coefficient": 0.72
+            },
+            "forecast": {
+                "yearly": {
+                    "yearly_summary": {
+                        "peak_risk_score": 0.85,
+                        "flood_probability": 0.65
+                    },
+                    "monthly_forecast": [
+                        {
+                            "month_name": "January",
+                            "expected_rainfall_mm": 12,
+                            "flood_probability": 0.05
+                        },
+                        {
+                            "month_name": "February",
+                            "expected_rainfall_mm": 18,
+                            "flood_probability": 0.08
+                        },
+                        {
+                            "month_name": "March",
+                            "expected_rainfall_mm": 45,
+                            "flood_probability": 0.15
+                        },
+                        {
+                            "month_name": "April",
+                            "expected_rainfall_mm": 120,
+                            "flood_probability": 0.35
+                        },
+                        {
+                            "month_name": "May",
+                            "expected_rainfall_mm": 250,
+                            "flood_probability": 0.65
+                        },
+                        {
+                            "month_name": "June",
+                            "expected_rainfall_mm": 550,
+                            "flood_probability": 0.95
+                        },
+                        {
+                            "month_name": "July",
+                            "expected_rainfall_mm": 650,
+                            "flood_probability": 0.98
+                        },
+                        {
+                            "month_name": "August",
+                            "expected_rainfall_mm": 480,
+                            "flood_probability": 0.92
+                        },
+                        {
+                            "month_name": "September",
+                            "expected_rainfall_mm": 220,
+                            "flood_probability": 0.55
+                        },
+                        {
+                            "month_name": "October",
+                            "expected_rainfall_mm": 180,
+                            "flood_probability": 0.45
+                        },
+                        {
+                            "month_name": "November",
+                            "expected_rainfall_mm": 90,
+                            "flood_probability": 0.25
+                        },
+                        {
+                            "month_name": "December",
+                            "expected_rainfall_mm": 35,
+                            "flood_probability": 0.12
+                        }
+                    ]
+                }
+            }
+        },
+        "darbhanga": {
+            "info": {
+                "id": "darbhanga",
+                "name": "Darbhanga",
+                "district": "Darbhanga",
+                "state": "Bihar",
+                "terrain_type": "alluvial_plain",
+                "coordinates": {
+                    "lat": 26.120,
+                    "lon": 85.900
+                },
+                "population": 250000
+            },
+            "stats": {
+                "elevation_mean": 52,
+                "slope_max": 2.1,
+                "runoff_coefficient": 0.45
+            },
+            "forecast": {
+                "yearly": {
+                    "yearly_summary": {
+                        "peak_risk_score": 0.92,
+                        "flood_probability": 0.88
+                    },
+                    "monthly_forecast": [
+                        {
+                            "month_name": "January",
+                            "expected_rainfall_mm": 15,
+                            "flood_probability": 0.02
+                        },
+                        {
+                            "month_name": "July",
+                            "expected_rainfall_mm": 450,
+                            "flood_probability": 0.92
+                        }
+                    ]
+                }
+            }
+        },
+        "dhemaji": {
+            "info": {
+                "id": "dhemaji",
+                "name": "Dhemaji",
+                "district": "Dhemaji",
+                "state": "Assam",
+                "terrain_type": "floodplain",
+                "coordinates": {
+                    "lat": 27.480,
+                    "lon": 94.560
+                },
+                "population": 150000
+            },
+            "stats": {
+                "elevation_mean": 125,
+                "slope_max": 5.8,
+                "runoff_coefficient": 0.68
+            },
+            "forecast": {
+                "yearly": {
+                    "yearly_summary": {
+                        "peak_risk_score": 0.88,
+                        "flood_probability": 0.75
+                    },
+                    "monthly_forecast": [
+                        {
+                            "month_name": "January",
+                            "expected_rainfall_mm": 25,
+                            "flood_probability": 0.05
+                        }
+                    ]
+                }
+            }
+        }
+    },
+    "is_live": false,
+    "model_metrics": {
+        "risk_scorer": {
+            "accuracy": 0.94
+        }
+    }
+}

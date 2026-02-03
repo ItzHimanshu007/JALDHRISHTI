@@ -1,0 +1,109 @@
+{
+    "type": "FeatureCollection",
+    "features": [
+        {
+            "type": "Feature",
+            "properties": {
+                "intensity": 0.8
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    76.135,
+                    11.555
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "intensity": 0.9
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    76.136,
+                    11.556
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "intensity": 0.7
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    76.134,
+                    11.554
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "intensity": 0.6
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    76.138,
+                    11.560
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "intensity": 0.5
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    76.125,
+                    11.550
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "intensity": 0.4
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    76.145,
+                    11.565
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "intensity": 0.8
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    76.130,
+                    11.558
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "intensity": 0.3
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    76.150,
+                    11.570
+                ]
+            }
+        }
+    ]
+}

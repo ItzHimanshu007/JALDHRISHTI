@@ -1,0 +1,1086 @@
+{
+  "wayanad_meppadi": {
+    "yearly": {
+      "village": "wayanad_meppadi",
+      "village_name": "Meppadi",
+      "state": "Kerala",
+      "year": 2026,
+      "monthly_forecast": [
+        {
+          "month": 1,
+          "month_name": "January",
+          "season": "winter",
+          "risk_score": 0.18570000000000003,
+          "risk_level": "low",
+          "expected_rainfall_mm": 6.7373117020437165,
+          "high_risk_days": 2,
+          "flood_probability": 0.14856000000000003,
+          "confidence": 0.8999999999999999,
+          "alerts": []
+        },
+        {
+          "month": 2,
+          "month_name": "February",
+          "season": "winter",
+          "risk_score": 0.18570000000000003,
+          "risk_level": "low",
+          "expected_rainfall_mm": 14.4789946500434,
+          "high_risk_days": 2,
+          "flood_probability": 0.14856000000000003,
+          "confidence": 0.8999999999999999,
+          "alerts": []
+        },
+        {
+          "month": 3,
+          "month_name": "March",
+          "season": "pre_monsoon",
+          "risk_score": 0.22920000000000004,
+          "risk_level": "low",
+          "expected_rainfall_mm": 32.48197257160892,
+          "high_risk_days": 2,
+          "flood_probability": 0.18336000000000005,
+          "confidence": 0.8999999999999999,
+          "alerts": []
+        },
+        {
+          "month": 4,
+          "month_name": "April",
+          "season": "pre_monsoon",
+          "risk_score": 0.22920000000000004,
+          "risk_level": "low",
+          "expected_rainfall_mm": 131.95019354533258,
+          "high_risk_days": 2,
+          "flood_probability": 0.18336000000000005,
+          "confidence": 0.8999999999999999,
+          "alerts": []
+        },
+        {
+          "month": 5,
+          "month_name": "May",
+          "season": "pre_monsoon",
+          "risk_score": 0.22920000000000004,
+          "risk_level": "low",
+          "expected_rainfall_mm": 261.6102495699518,
+          "high_risk_days": 2,
+          "flood_probability": 0.18336000000000005,
+          "confidence": 0.8999999999999999,
+          "alerts": []
+        },
+        {
+          "month": 6,
+          "month_name": "June",
+          "season": "southwest_monsoon",
+          "risk_score": 0.8861,
+          "risk_level": "extreme",
+          "expected_rainfall_mm": 933.6500808017042,
+          "high_risk_days": 10,
+          "flood_probability": 0.7088800000000001,
+          "confidence": 0.8999999999999999,
+          "alerts": [
+            {
+              "type": "warning",
+              "severity": "high",
+              "message": "Extreme flood risk expected. Prepare evacuation plans.",
+              "action": "Activate emergency response protocols"
+            }
+          ]
+        },
+        {
+          "month": 7,
+          "month_name": "July",
+          "season": "southwest_monsoon",
+          "risk_score": 0.95,
+          "risk_level": "extreme",
+          "expected_rainfall_mm": 1340.4859635445434,
+          "high_risk_days": 11,
+          "flood_probability": 0.76,
+          "confidence": 0.8999999999999999,
+          "alerts": [
+            {
+              "type": "warning",
+              "severity": "high",
+              "message": "Extreme flood risk expected. Prepare evacuation plans.",
+              "action": "Activate emergency response protocols"
+            },
+            {
+              "type": "advisory",
+              "severity": "medium",
+              "message": "Peak monsoon period. Expected rainfall: 1340mm",
+              "action": "Ensure drainage systems are clear"
+            },
+            {
+              "type": "historical",
+              "severity": "info",
+              "message": "Historical flood occurred in this month (2024)",
+              "action": "Review past response measures"
+            }
+          ]
+        },
+        {
+          "month": 8,
+          "month_name": "August",
+          "season": "southwest_monsoon",
+          "risk_score": 0.95,
+          "risk_level": "extreme",
+          "expected_rainfall_mm": 752.4490182592913,
+          "high_risk_days": 11,
+          "flood_probability": 0.76,
+          "confidence": 0.8999999999999999,
+          "alerts": [
+            {
+              "type": "warning",
+              "severity": "high",
+              "message": "Extreme flood risk expected. Prepare evacuation plans.",
+              "action": "Activate emergency response protocols"
+            },
+            {
+              "type": "advisory",
+              "severity": "medium",
+              "message": "Peak monsoon period. Expected rainfall: 752mm",
+              "action": "Ensure drainage systems are clear"
+            },
+            {
+              "type": "historical",
+              "severity": "info",
+              "message": "Historical flood occurred in this month (2018)",
+              "action": "Review past response measures"
+            },
+            {
+              "type": "historical",
+              "severity": "info",
+              "message": "Historical flood occurred in this month (2019)",
+              "action": "Review past response measures"
+            }
+          ]
+        },
+        {
+          "month": 9,
+          "month_name": "September",
+          "season": "southwest_monsoon",
+          "risk_score": 0.8861,
+          "risk_level": "extreme",
+          "expected_rainfall_mm": 340.1264189694626,
+          "high_risk_days": 10,
+          "flood_probability": 0.7088800000000001,
+          "confidence": 0.8999999999999999,
+          "alerts": [
+            {
+              "type": "warning",
+              "severity": "high",
+              "message": "Extreme flood risk expected. Prepare evacuation plans.",
+              "action": "Activate emergency response protocols"
+            }
+          ]
+        },
+        {
+          "month": 10,
+          "month_name": "October",
+          "season": "post_monsoon",
+          "risk_score": 0.4734,
+          "risk_level": "medium",
+          "expected_rainfall_mm": 331.18486300007885,
+          "high_risk_days": 5,
+          "flood_probability": 0.37872,
+          "confidence": 0.8999999999999999,
+          "alerts": []
+        },
+        {
+          "month": 11,
+          "month_name": "November",
+          "season": "post_monsoon",
+          "risk_score": 0.4734,
+          "risk_level": "medium",
+          "expected_rainfall_mm": 152.56761120492385,
+          "high_risk_days": 5,
+          "flood_probability": 0.37872,
+          "confidence": 0.8999999999999999,
+          "alerts": []
+        },
+        {
+          "month": 12,
+          "month_name": "December",
+          "season": "winter",
+          "risk_score": 0.18570000000000003,
+          "risk_level": "low",
+          "expected_rainfall_mm": 37.87360886924957,
+          "high_risk_days": 2,
+          "flood_probability": 0.14856000000000003,
+          "confidence": 0.8999999999999999,
+          "alerts": []
+        }
+      ],
+      "yearly_summary": {
+        "high_risk_months": [
+          "June",
+          "July",
+          "August",
+          "September"
+        ],
+        "peak_risk_month": "July",
+        "peak_risk_score": 0.95,
+        "total_high_risk_days": 64,
+        "expected_rainfall_mm": 4335.596286688234,
+        "flood_probability": 0.7344400000000001
+      },
+      "generated_at": "2026-02-01T21:48:46.789838"
+    },
+    "monsoon": {
+      "village": "wayanad_meppadi",
+      "year": 2026,
+      "monsoon_onset": {
+        "predicted_date": "2026-06-01",
+        "confidence": 0.8
+      },
+      "season_outlook": {
+        "total_expected_rainfall_mm": 3366.7114815750015,
+        "compared_to_normal": "above_normal",
+        "peak_risk_month": "July",
+        "critical_weeks": [
+          {
+            "start_date": "2026-07-20",
+            "end_date": "2026-07-31",
+            "risk": "very_high",
+            "reason": "Peak monsoon intensity typically observed"
+          },
+          {
+            "start_date": "2026-08-01",
+            "end_date": "2026-08-15",
+            "risk": "high",
+            "reason": "Historical flooding frequency highest"
+          }
+        ]
+      },
+      "monthly_breakdown": [
+        {
+          "month": 6,
+          "month_name": "June",
+          "season": "southwest_monsoon",
+          "risk_score": 0.8861,
+          "risk_level": "extreme",
+          "expected_rainfall_mm": 933.6500808017042,
+          "high_risk_days": 10,
+          "flood_probability": 0.7088800000000001,
+          "confidence": 0.8999999999999999,
+          "alerts": [
+            {
+              "type": "warning",
+              "severity": "high",
+              "message": "Extreme flood risk expected. Prepare evacuation plans.",
+              "action": "Activate emergency response protocols"
+            }
+          ]
+        },
+        {
+          "month": 7,
+          "month_name": "July",
+          "season": "southwest_monsoon",
+          "risk_score": 0.95,
+          "risk_level": "extreme",
+          "expected_rainfall_mm": 1340.4859635445434,
+          "high_risk_days": 11,
+          "flood_probability": 0.76,
+          "confidence": 0.8999999999999999,
+          "alerts": [
+            {
+              "type": "warning",
+              "severity": "high",
+              "message": "Extreme flood risk expected. Prepare evacuation plans.",
+              "action": "Activate emergency response protocols"
+            },
+            {
+              "type": "advisory",
+              "severity": "medium",
+              "message": "Peak monsoon period. Expected rainfall: 1340mm",
+              "action": "Ensure drainage systems are clear"
+            },
+            {
+              "type": "historical",
+              "severity": "info",
+              "message": "Historical flood occurred in this month (2024)",
+              "action": "Review past response measures"
+            }
+          ]
+        },
+        {
+          "month": 8,
+          "month_name": "August",
+          "season": "southwest_monsoon",
+          "risk_score": 0.95,
+          "risk_level": "extreme",
+          "expected_rainfall_mm": 752.4490182592913,
+          "high_risk_days": 11,
+          "flood_probability": 0.76,
+          "confidence": 0.8999999999999999,
+          "alerts": [
+            {
+              "type": "warning",
+              "severity": "high",
+              "message": "Extreme flood risk expected. Prepare evacuation plans.",
+              "action": "Activate emergency response protocols"
+            },
+            {
+              "type": "advisory",
+              "severity": "medium",
+              "message": "Peak monsoon period. Expected rainfall: 752mm",
+              "action": "Ensure drainage systems are clear"
+            },
+            {
+              "type": "historical",
+              "severity": "info",
+              "message": "Historical flood occurred in this month (2018)",
+              "action": "Review past response measures"
+            },
+            {
+              "type": "historical",
+              "severity": "info",
+              "message": "Historical flood occurred in this month (2019)",
+              "action": "Review past response measures"
+            }
+          ]
+        },
+        {
+          "month": 9,
+          "month_name": "September",
+          "season": "southwest_monsoon",
+          "risk_score": 0.8861,
+          "risk_level": "extreme",
+          "expected_rainfall_mm": 340.1264189694626,
+          "high_risk_days": 10,
+          "flood_probability": 0.7088800000000001,
+          "confidence": 0.8999999999999999,
+          "alerts": [
+            {
+              "type": "warning",
+              "severity": "high",
+              "message": "Extreme flood risk expected. Prepare evacuation plans.",
+              "action": "Activate emergency response protocols"
+            }
+          ]
+        }
+      ],
+      "overall_flood_risk": 0.76,
+      "preparedness_recommendations": [
+        {
+          "category": "Infrastructure",
+          "action": "Clear drainage channels and check flood barriers"
+        },
+        {
+          "category": "Communication",
+          "action": "Establish early warning dissemination chain"
+        },
+        {
+          "category": "Evacuation",
+          "action": "Identify and prepare safe zones for temporary shelters"
+        },
+        {
+          "category": "Supplies",
+          "action": "Pre-position emergency supplies in vulnerable areas"
+        },
+        {
+          "category": "Monitoring",
+          "action": "Install upstream rainfall monitoring stations"
+        }
+      ]
+    }
+  },
+  "darbhanga": {
+    "yearly": {
+      "village": "darbhanga",
+      "village_name": "Darbhanga",
+      "state": "Bihar",
+      "year": 2026,
+      "monthly_forecast": [
+        {
+          "month": 1,
+          "month_name": "January",
+          "season": "winter",
+          "risk_score": 0.2091,
+          "risk_level": "low",
+          "expected_rainfall_mm": 17.383541071569475,
+          "high_risk_days": 2,
+          "flood_probability": 0.16728,
+          "confidence": 0.8999999999999999,
+          "alerts": []
+        },
+        {
+          "month": 2,
+          "month_name": "February",
+          "season": "winter",
+          "risk_score": 0.2091,
+          "risk_level": "low",
+          "expected_rainfall_mm": 10.631828801388771,
+          "high_risk_days": 2,
+          "flood_probability": 0.16728,
+          "confidence": 0.8999999999999999,
+          "alerts": []
+        },
+        {
+          "month": 3,
+          "month_name": "March",
+          "season": "pre_monsoon",
+          "risk_score": 0.24720000000000006,
+          "risk_level": "low",
+          "expected_rainfall_mm": 12.67522815434388,
+          "high_risk_days": 3,
+          "flood_probability": 0.19776000000000005,
+          "confidence": 0.8999999999999999,
+          "alerts": []
+        },
+        {
+          "month": 4,
+          "month_name": "April",
+          "season": "pre_monsoon",
+          "risk_score": 0.24720000000000006,
+          "risk_level": "low",
+          "expected_rainfall_mm": 24.78226421526079,
+          "high_risk_days": 2,
+          "flood_probability": 0.19776000000000005,
+          "confidence": 0.8999999999999999,
+          "alerts": []
+        },
+        {
+          "month": 5,
+          "month_name": "May",
+          "season": "pre_monsoon",
+          "risk_score": 0.24720000000000006,
+          "risk_level": "low",
+          "expected_rainfall_mm": 71.51118080959519,
+          "high_risk_days": 3,
+          "flood_probability": 0.19776000000000005,
+          "confidence": 0.8999999999999999,
+          "alerts": []
+        },
+        {
+          "month": 6,
+          "month_name": "June",
+          "season": "southwest_monsoon",
+          "risk_score": 0.9486,
+          "risk_level": "extreme",
+          "expected_rainfall_mm": 187.96259360845886,
+          "high_risk_days": 11,
+          "flood_probability": 0.75888,
+          "confidence": 0.8999999999999999,
+          "alerts": [
+            {
+              "type": "warning",
+              "severity": "high",
+              "message": "Extreme flood risk expected. Prepare evacuation plans.",
+              "action": "Activate emergency response protocols"
+            }
+          ]
+        },
+        {
+          "month": 7,
+          "month_name": "July",
+          "season": "southwest_monsoon",
+          "risk_score": 0.9486,
+          "risk_level": "extreme",
+          "expected_rainfall_mm": 367.6167839659118,
+          "high_risk_days": 11,
+          "flood_probability": 0.75888,
+          "confidence": 0.8999999999999999,
+          "alerts": [
+            {
+              "type": "warning",
+              "severity": "high",
+              "message": "Extreme flood risk expected. Prepare evacuation plans.",
+              "action": "Activate emergency response protocols"
+            },
+            {
+              "type": "advisory",
+              "severity": "medium",
+              "message": "Peak monsoon period. Expected rainfall: 368mm",
+              "action": "Ensure drainage systems are clear"
+            },
+            {
+              "type": "historical",
+              "severity": "info",
+              "message": "Historical flood occurred in this month (2020)",
+              "action": "Review past response measures"
+            }
+          ]
+        },
+        {
+          "month": 8,
+          "month_name": "August",
+          "season": "southwest_monsoon",
+          "risk_score": 0.9486,
+          "risk_level": "extreme",
+          "expected_rainfall_mm": 329.97946885504615,
+          "high_risk_days": 11,
+          "flood_probability": 0.75888,
+          "confidence": 0.8999999999999999,
+          "alerts": [
+            {
+              "type": "warning",
+              "severity": "high",
+              "message": "Extreme flood risk expected. Prepare evacuation plans.",
+              "action": "Activate emergency response protocols"
+            },
+            {
+              "type": "advisory",
+              "severity": "medium",
+              "message": "Peak monsoon period. Expected rainfall: 330mm",
+              "action": "Ensure drainage systems are clear"
+            }
+          ]
+        },
+        {
+          "month": 9,
+          "month_name": "September",
+          "season": "southwest_monsoon",
+          "risk_score": 0.9486,
+          "risk_level": "extreme",
+          "expected_rainfall_mm": 228.13271017123014,
+          "high_risk_days": 11,
+          "flood_probability": 0.75888,
+          "confidence": 0.8999999999999999,
+          "alerts": [
+            {
+              "type": "warning",
+              "severity": "high",
+              "message": "Extreme flood risk expected. Prepare evacuation plans.",
+              "action": "Activate emergency response protocols"
+            }
+          ]
+        },
+        {
+          "month": 10,
+          "month_name": "October",
+          "season": "post_monsoon",
+          "risk_score": 0.5147999999999999,
+          "risk_level": "medium",
+          "expected_rainfall_mm": 79.45091296457035,
+          "high_risk_days": 6,
+          "flood_probability": 0.41184,
+          "confidence": 0.8999999999999999,
+          "alerts": []
+        },
+        {
+          "month": 11,
+          "month_name": "November",
+          "season": "post_monsoon",
+          "risk_score": 0.5147999999999999,
+          "risk_level": "medium",
+          "expected_rainfall_mm": 8.391161871695727,
+          "high_risk_days": 6,
+          "flood_probability": 0.41184,
+          "confidence": 0.8999999999999999,
+          "alerts": []
+        },
+        {
+          "month": 12,
+          "month_name": "December",
+          "season": "winter",
+          "risk_score": 0.2091,
+          "risk_level": "low",
+          "expected_rainfall_mm": 5.521260506588811,
+          "high_risk_days": 2,
+          "flood_probability": 0.16728,
+          "confidence": 0.8999999999999999,
+          "alerts": []
+        }
+      ],
+      "yearly_summary": {
+        "high_risk_months": [
+          "June",
+          "July",
+          "August",
+          "September"
+        ],
+        "peak_risk_month": "June",
+        "peak_risk_score": 0.9486,
+        "total_high_risk_days": 70,
+        "expected_rainfall_mm": 1344.03893499566,
+        "flood_probability": 0.75888
+      },
+      "generated_at": "2026-02-01T21:48:46.824377"
+    },
+    "monsoon": {
+      "village": "darbhanga",
+      "year": 2026,
+      "monsoon_onset": {
+        "predicted_date": "2026-06-15",
+        "confidence": 0.7
+      },
+      "season_outlook": {
+        "total_expected_rainfall_mm": 1113.6915566006471,
+        "compared_to_normal": "normal",
+        "peak_risk_month": "June",
+        "critical_weeks": [
+          {
+            "start_date": "2026-07-20",
+            "end_date": "2026-07-31",
+            "risk": "very_high",
+            "reason": "Peak monsoon intensity typically observed"
+          },
+          {
+            "start_date": "2026-08-01",
+            "end_date": "2026-08-15",
+            "risk": "high",
+            "reason": "Historical flooding frequency highest"
+          }
+        ]
+      },
+      "monthly_breakdown": [
+        {
+          "month": 6,
+          "month_name": "June",
+          "season": "southwest_monsoon",
+          "risk_score": 0.9486,
+          "risk_level": "extreme",
+          "expected_rainfall_mm": 187.96259360845886,
+          "high_risk_days": 11,
+          "flood_probability": 0.75888,
+          "confidence": 0.8999999999999999,
+          "alerts": [
+            {
+              "type": "warning",
+              "severity": "high",
+              "message": "Extreme flood risk expected. Prepare evacuation plans.",
+              "action": "Activate emergency response protocols"
+            }
+          ]
+        },
+        {
+          "month": 7,
+          "month_name": "July",
+          "season": "southwest_monsoon",
+          "risk_score": 0.9486,
+          "risk_level": "extreme",
+          "expected_rainfall_mm": 367.6167839659118,
+          "high_risk_days": 11,
+          "flood_probability": 0.75888,
+          "confidence": 0.8999999999999999,
+          "alerts": [
+            {
+              "type": "warning",
+              "severity": "high",
+              "message": "Extreme flood risk expected. Prepare evacuation plans.",
+              "action": "Activate emergency response protocols"
+            },
+            {
+              "type": "advisory",
+              "severity": "medium",
+              "message": "Peak monsoon period. Expected rainfall: 368mm",
+              "action": "Ensure drainage systems are clear"
+            },
+            {
+              "type": "historical",
+              "severity": "info",
+              "message": "Historical flood occurred in this month (2020)",
+              "action": "Review past response measures"
+            }
+          ]
+        },
+        {
+          "month": 8,
+          "month_name": "August",
+          "season": "southwest_monsoon",
+          "risk_score": 0.9486,
+          "risk_level": "extreme",
+          "expected_rainfall_mm": 329.97946885504615,
+          "high_risk_days": 11,
+          "flood_probability": 0.75888,
+          "confidence": 0.8999999999999999,
+          "alerts": [
+            {
+              "type": "warning",
+              "severity": "high",
+              "message": "Extreme flood risk expected. Prepare evacuation plans.",
+              "action": "Activate emergency response protocols"
+            },
+            {
+              "type": "advisory",
+              "severity": "medium",
+              "message": "Peak monsoon period. Expected rainfall: 330mm",
+              "action": "Ensure drainage systems are clear"
+            }
+          ]
+        },
+        {
+          "month": 9,
+          "month_name": "September",
+          "season": "southwest_monsoon",
+          "risk_score": 0.9486,
+          "risk_level": "extreme",
+          "expected_rainfall_mm": 228.13271017123014,
+          "high_risk_days": 11,
+          "flood_probability": 0.75888,
+          "confidence": 0.8999999999999999,
+          "alerts": [
+            {
+              "type": "warning",
+              "severity": "high",
+              "message": "Extreme flood risk expected. Prepare evacuation plans.",
+              "action": "Activate emergency response protocols"
+            }
+          ]
+        }
+      ],
+      "overall_flood_risk": 0.75888,
+      "preparedness_recommendations": [
+        {
+          "category": "Infrastructure",
+          "action": "Clear drainage channels and check flood barriers"
+        },
+        {
+          "category": "Communication",
+          "action": "Establish early warning dissemination chain"
+        },
+        {
+          "category": "Evacuation",
+          "action": "Identify and prepare safe zones for temporary shelters"
+        },
+        {
+          "category": "Supplies",
+          "action": "Pre-position emergency supplies in vulnerable areas"
+        }
+      ]
+    }
+  },
+  "dhemaji": {
+    "yearly": {
+      "village": "dhemaji",
+      "village_name": "Dhemaji",
+      "state": "Assam",
+      "year": 2026,
+      "monthly_forecast": [
+        {
+          "month": 1,
+          "month_name": "January",
+          "season": "winter",
+          "risk_score": 0.2104,
+          "risk_level": "low",
+          "expected_rainfall_mm": 30.102873447486775,
+          "high_risk_days": 2,
+          "flood_probability": 0.16832000000000003,
+          "confidence": 0.8999999999999999,
+          "alerts": []
+        },
+        {
+          "month": 2,
+          "month_name": "February",
+          "season": "winter",
+          "risk_score": 0.2104,
+          "risk_level": "low",
+          "expected_rainfall_mm": 53.71490526315788,
+          "high_risk_days": 2,
+          "flood_probability": 0.16832000000000003,
+          "confidence": 0.8999999999999999,
+          "alerts": []
+        },
+        {
+          "month": 3,
+          "month_name": "March",
+          "season": "pre_monsoon",
+          "risk_score": 0.24980000000000005,
+          "risk_level": "low",
+          "expected_rainfall_mm": 96.57225566164284,
+          "high_risk_days": 3,
+          "flood_probability": 0.19984000000000005,
+          "confidence": 0.8999999999999999,
+          "alerts": []
+        },
+        {
+          "month": 4,
+          "month_name": "April",
+          "season": "pre_monsoon",
+          "risk_score": 0.24980000000000005,
+          "risk_level": "low",
+          "expected_rainfall_mm": 218.19598216681126,
+          "high_risk_days": 2,
+          "flood_probability": 0.19984000000000005,
+          "confidence": 0.8999999999999999,
+          "alerts": []
+        },
+        {
+          "month": 5,
+          "month_name": "May",
+          "season": "pre_monsoon",
+          "risk_score": 0.24980000000000005,
+          "risk_level": "low",
+          "expected_rainfall_mm": 423.68620748047016,
+          "high_risk_days": 3,
+          "flood_probability": 0.19984000000000005,
+          "confidence": 0.8999999999999999,
+          "alerts": []
+        },
+        {
+          "month": 6,
+          "month_name": "June",
+          "season": "southwest_monsoon",
+          "risk_score": 0.95,
+          "risk_level": "extreme",
+          "expected_rainfall_mm": 661.2383995738971,
+          "high_risk_days": 11,
+          "flood_probability": 0.76,
+          "confidence": 0.8999999999999999,
+          "alerts": [
+            {
+              "type": "warning",
+              "severity": "high",
+              "message": "Extreme flood risk expected. Prepare evacuation plans.",
+              "action": "Activate emergency response protocols"
+            }
+          ]
+        },
+        {
+          "month": 7,
+          "month_name": "July",
+          "season": "southwest_monsoon",
+          "risk_score": 0.95,
+          "risk_level": "extreme",
+          "expected_rainfall_mm": 748.9667676477551,
+          "high_risk_days": 11,
+          "flood_probability": 0.76,
+          "confidence": 0.8999999999999999,
+          "alerts": [
+            {
+              "type": "warning",
+              "severity": "high",
+              "message": "Extreme flood risk expected. Prepare evacuation plans.",
+              "action": "Activate emergency response protocols"
+            },
+            {
+              "type": "advisory",
+              "severity": "medium",
+              "message": "Peak monsoon period. Expected rainfall: 749mm",
+              "action": "Ensure drainage systems are clear"
+            }
+          ]
+        },
+        {
+          "month": 8,
+          "month_name": "August",
+          "season": "southwest_monsoon",
+          "risk_score": 0.95,
+          "risk_level": "extreme",
+          "expected_rainfall_mm": 571.8328720902707,
+          "high_risk_days": 11,
+          "flood_probability": 0.76,
+          "confidence": 0.8999999999999999,
+          "alerts": [
+            {
+              "type": "warning",
+              "severity": "high",
+              "message": "Extreme flood risk expected. Prepare evacuation plans.",
+              "action": "Activate emergency response protocols"
+            },
+            {
+              "type": "advisory",
+              "severity": "medium",
+              "message": "Peak monsoon period. Expected rainfall: 572mm",
+              "action": "Ensure drainage systems are clear"
+            }
+          ]
+        },
+        {
+          "month": 9,
+          "month_name": "September",
+          "season": "southwest_monsoon",
+          "risk_score": 0.95,
+          "risk_level": "extreme",
+          "expected_rainfall_mm": 500.61833415923616,
+          "high_risk_days": 11,
+          "flood_probability": 0.76,
+          "confidence": 0.8999999999999999,
+          "alerts": [
+            {
+              "type": "warning",
+              "severity": "high",
+              "message": "Extreme flood risk expected. Prepare evacuation plans.",
+              "action": "Activate emergency response protocols"
+            }
+          ]
+        },
+        {
+          "month": 10,
+          "month_name": "October",
+          "season": "post_monsoon",
+          "risk_score": 0.5186999999999999,
+          "risk_level": "medium",
+          "expected_rainfall_mm": 184.63521519766434,
+          "high_risk_days": 6,
+          "flood_probability": 0.41496,
+          "confidence": 0.8999999999999999,
+          "alerts": []
+        },
+        {
+          "month": 11,
+          "month_name": "November",
+          "season": "post_monsoon",
+          "risk_score": 0.5186999999999999,
+          "risk_level": "medium",
+          "expected_rainfall_mm": 28.645975049317453,
+          "high_risk_days": 6,
+          "flood_probability": 0.41496,
+          "confidence": 0.8999999999999999,
+          "alerts": []
+        },
+        {
+          "month": 12,
+          "month_name": "December",
+          "season": "winter",
+          "risk_score": 0.2104,
+          "risk_level": "low",
+          "expected_rainfall_mm": 22.569441868539414,
+          "high_risk_days": 2,
+          "flood_probability": 0.16832000000000003,
+          "confidence": 0.8999999999999999,
+          "alerts": []
+        }
+      ],
+      "yearly_summary": {
+        "high_risk_months": [
+          "June",
+          "July",
+          "August",
+          "September"
+        ],
+        "peak_risk_month": "June",
+        "peak_risk_score": 0.95,
+        "total_high_risk_days": 70,
+        "expected_rainfall_mm": 3540.779229606249,
+        "flood_probability": 0.76
+      },
+      "generated_at": "2026-02-01T21:48:46.856671"
+    },
+    "monsoon": {
+      "village": "dhemaji",
+      "year": 2026,
+      "monsoon_onset": {
+        "predicted_date": "2026-06-10",
+        "confidence": 0.65
+      },
+      "season_outlook": {
+        "total_expected_rainfall_mm": 2482.656373471159,
+        "compared_to_normal": "above_normal",
+        "peak_risk_month": "June",
+        "critical_weeks": [
+          {
+            "start_date": "2026-07-20",
+            "end_date": "2026-07-31",
+            "risk": "very_high",
+            "reason": "Peak monsoon intensity typically observed"
+          },
+          {
+            "start_date": "2026-08-01",
+            "end_date": "2026-08-15",
+            "risk": "high",
+            "reason": "Historical flooding frequency highest"
+          }
+        ]
+      },
+      "monthly_breakdown": [
+        {
+          "month": 6,
+          "month_name": "June",
+          "season": "southwest_monsoon",
+          "risk_score": 0.95,
+          "risk_level": "extreme",
+          "expected_rainfall_mm": 661.2383995738971,
+          "high_risk_days": 11,
+          "flood_probability": 0.76,
+          "confidence": 0.8999999999999999,
+          "alerts": [
+            {
+              "type": "warning",
+              "severity": "high",
+              "message": "Extreme flood risk expected. Prepare evacuation plans.",
+              "action": "Activate emergency response protocols"
+            }
+          ]
+        },
+        {
+          "month": 7,
+          "month_name": "July",
+          "season": "southwest_monsoon",
+          "risk_score": 0.95,
+          "risk_level": "extreme",
+          "expected_rainfall_mm": 748.9667676477551,
+          "high_risk_days": 11,
+          "flood_probability": 0.76,
+          "confidence": 0.8999999999999999,
+          "alerts": [
+            {
+              "type": "warning",
+              "severity": "high",
+              "message": "Extreme flood risk expected. Prepare evacuation plans.",
+              "action": "Activate emergency response protocols"
+            },
+            {
+              "type": "advisory",
+              "severity": "medium",
+              "message": "Peak monsoon period. Expected rainfall: 749mm",
+              "action": "Ensure drainage systems are clear"
+            }
+          ]
+        },
+        {
+          "month": 8,
+          "month_name": "August",
+          "season": "southwest_monsoon",
+          "risk_score": 0.95,
+          "risk_level": "extreme",
+          "expected_rainfall_mm": 571.8328720902707,
+          "high_risk_days": 11,
+          "flood_probability": 0.76,
+          "confidence": 0.8999999999999999,
+          "alerts": [
+            {
+              "type": "warning",
+              "severity": "high",
+              "message": "Extreme flood risk expected. Prepare evacuation plans.",
+              "action": "Activate emergency response protocols"
+            },
+            {
+              "type": "advisory",
+              "severity": "medium",
+              "message": "Peak monsoon period. Expected rainfall: 572mm",
+              "action": "Ensure drainage systems are clear"
+            }
+          ]
+        },
+        {
+          "month": 9,
+          "month_name": "September",
+          "season": "southwest_monsoon",
+          "risk_score": 0.95,
+          "risk_level": "extreme",
+          "expected_rainfall_mm": 500.61833415923616,
+          "high_risk_days": 11,
+          "flood_probability": 0.76,
+          "confidence": 0.8999999999999999,
+          "alerts": [
+            {
+              "type": "warning",
+              "severity": "high",
+              "message": "Extreme flood risk expected. Prepare evacuation plans.",
+              "action": "Activate emergency response protocols"
+            }
+          ]
+        }
+      ],
+      "overall_flood_risk": 0.76,
+      "preparedness_recommendations": [
+        {
+          "category": "Infrastructure",
+          "action": "Clear drainage channels and check flood barriers"
+        },
+        {
+          "category": "Communication",
+          "action": "Establish early warning dissemination chain"
+        },
+        {
+          "category": "Evacuation",
+          "action": "Identify and prepare safe zones for temporary shelters"
+        },
+        {
+          "category": "Supplies",
+          "action": "Pre-position emergency supplies in vulnerable areas"
+        }
+      ]
+    }
+  }
+}

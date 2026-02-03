@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Guide - Jal Drishti</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Deep Water Professional Theme - Matching Methodology */
+            --bg-base: #0f172a;
+            --bg-surface: #1e293b;
+            --bg-elevated: #334155;
+            --border-subtle: rgba(148, 163, 184, 0.15);
+            --border-accent: rgba(14, 165, 165, 0.4);
+            --accent-primary: #0d9488;
+            --accent-secondary: #14b8a6;
+            --accent-glow: rgba(20, 184, 166, 0.15);
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --text-muted: #94a3b8;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #0ea5e9;
+            --font-main: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-main);
+            background: var(--bg-base);
+            min-height: 100vh;
+            color: var(--text-primary);
+            line-height: 1.7;
+        }
+
+        /* Navigation */
+        .navbar {
+            background: var(--bg-surface);
+            padding: 0 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 60px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-primary);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.125rem;
+        }
+
+        .nav-brand span {
+            color: var(--accent-secondary);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 0.25rem;
+        }
+
+        .nav-link {
+            color: var(--text-muted);
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .nav-link:hover {
+            background: var(--bg-elevated);
+            color: var(--text-primary);
+        }
+
+        .nav-link.active {
+            background: var(--accent-glow);
+            color: var(--accent-secondary);
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2.5rem 1.5rem;
+        }
+
+        /* Page Header */
+        .page-header {
+            margin-bottom: 2.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .page-header h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .page-header p {
+            color: var(--text-muted);
+            font-size: 1rem;
+        }
+
+        /* Section */
+        .section {
+            margin-bottom: 2.5rem;
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .section-title::before {
+            content: "";
+            width: 4px;
+            height: 1.25rem;
+            background: var(--accent-primary);
+            border-radius: 2px;
+        }
+
+        /* Card */
+        .card {
+            background: var(--bg-surface);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid var(--border-subtle);
+        }
+
+        .card h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            color: var(--accent-secondary);
+        }
+
+        .card p {
+            color: var(--text-secondary);
+            margin-bottom: 0.75rem;
+        }
+
+        .card p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Step Grid */
+        .step-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .step-card {
+            background: var(--bg-base);
+            padding: 1.25rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-subtle);
+            position: relative;
+            transition: transform 0.2s ease;
+        }
+
+        .step-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--border-accent);
+        }
+
+        .step-num {
+            width: 28px;
+            height: 28px;
+            background: var(--accent-primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+        }
+
+        .step-card h4 {
+            font-size: 0.9375rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .step-card p {
+            font-size: 0.8125rem;
+            color: var(--text-muted);
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        /* Feature Row */
+        .feature-row {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+            align-items: flex-start;
+        }
+
+        .feature-icon {
+            flex: 0 0 48px;
+            height: 48px;
+            background: var(--bg-elevated);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            border: 1px solid var(--border-subtle);
+        }
+
+        .feature-content {
+            flex: 1;
+        }
+
+        .feature-content h4 {
+            font-size: 1rem;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .feature-content p {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        /* Alert Boxes - Matching Methodology */
+        .alert {
+            padding: 1rem 1.25rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border-left: 3px solid;
+        }
+
+        .alert.info {
+            background: rgba(14, 165, 233, 0.1);
+            border-color: var(--info);
+        }
+
+        .alert.success {
+            background: rgba(34, 197, 94, 0.1);
+            border-color: var(--success);
+        }
+
+        .alert.warning {
+            background: rgba(245, 158, 11, 0.1);
+            border-color: var(--warning);
+        }
+
+        .alert strong {
+            display: block;
+            margin-bottom: 0.25rem;
+            color: var(--text-primary);
+        }
+
+        .alert p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin: 0;
+        }
+
+        /* Village Chips */
+        .village-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .village-card {
+            background: var(--bg-base);
+            padding: 1.25rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-subtle);
+        }
+
+        .village-card h4 {
+            color: var(--accent-secondary);
+            margin-bottom: 0.5rem;
+            font-size: 0.9375rem;
+        }
+
+        .village-meta {
+            font-size: 0.8125rem;
+            color: var(--text-muted);
+            margin-bottom: 0.75rem;
+        }
+
+        .village-tags {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .tag {
+            font-size: 0.6875rem;
+            padding: 0.2rem 0.5rem;
+            background: var(--bg-elevated);
+            color: var(--text-secondary);
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Risk Legend - Matching Methodology */
+        .risk-legend {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .risk-item {
+            padding: 1rem;
+            border-radius: 8px;
+            border-left: 4px solid;
+            background: var(--bg-base);
+        }
+
+        .risk-item.high {
+            border-color: var(--danger);
+        }
+
+        .risk-item.medium {
+            border-color: var(--warning);
+        }
+
+        .risk-item.low {
+            border-color: var(--success);
+        }
+
+        .risk-item h4 {
+            font-size: 0.875rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .risk-item p {
+            font-size: 0.8125rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            border-top: 1px solid var(--border-subtle);
+            margin-top: 2rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+            .navbar {
+                padding: 0 1rem;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .container {
+                padding: 1.5rem 1rem;
+            }
+
+            .feature-row {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <a href="index.html" class="nav-brand">Jal Drishti <span>2.0</span></a>
+        <div class="nav-links">
+            <a href="index.html" class="nav-link">Dashboard</a>
+            <a href="user-guide.html" class="nav-link active">User Guide</a>
+            <a href="methodology.html" class="nav-link">Methodology</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1>User Guide</h1>
+            <p>Operational guide for the Jal Drishti Flood Intelligence Dashboard</p>
+        </div>
+
+        <!-- Quick Start -->
+        <div class="section">
+            <h2 class="section-title">Quick Start</h2>
+
+            <div class="step-grid">
+                <div class="step-card">
+                    <div class="step-num">01</div>
+                    <h4>Select Region</h4>
+                    <p>Choose a target village from the top-left dropdown to load local terrain and ML metrics.</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-num">02</div>
+                    <h4>Activate Simulation</h4>
+                    <p>Click the "Play" button on the bottom bar to watch flood progression over a 24-hour cycle.</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-num">03</div>
+                    <h4>Inspect Layers</h4>
+                    <p>Toggle 3D Buildings, Flow Vectors, or Risk Grid using the floating command panel on the right.
+                    </p>
+                </div>
+                <div class="step-card">
+                    <div class="step-num">04</div>
+                    <h4>Analyze Cells</h4>
+                    <p>Click any point on the map to view a live telemetry "Cell Scan" of local water depth and risk.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Interfaces -->
+        <div class="section">
+            <h2 class="section-title">Core Operations</h2>
+
+            <div class="card">
+                <div class="feature-row">
+                    <div class="feature-icon">🧭</div>
+                    <div class="feature-content">
+                        <h4>Mission Control (Left Panel)</h4>
+                        <p>Displays real-time village telemetry, including average elevation, slope, and total
+                            population currently exposed to flood risk. Includes forecast sparklines showing rainfall
+                            trends.</p>
+                    </div>
+                </div>
+
+                <div class="feature-row">
+                    <div class="feature-icon">⏯️</div>
+                    <div class="feature-content">
+                        <h4>Simulation Timeline (Bottom)</h4>
+                        <p>Controls the temporal dimension of the model. You can manually scrub between +0h (now) and
+                            +24h (forecast peak) to witness spatial flood expansion.</p>
+                    </div>
+                </div>
+
+                <div class="feature-row">
+                    <div class="feature-icon">🧩</div>
+                    <div class="feature-content">
+                        <h4>Layer Toggles (Right)</h4>
+                        <p><strong>Satellite:</strong> Toggle between base imagery and dark-matter map. <br>
+                            <strong>Risk Grid:</strong> Overlay the dynamic flood risk heatmap. <br>
+                            <strong>Flow:</strong> Visualize downhill water movement direction.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Target Zones -->
+        <div class="section">
+            <h2 class="section-title">Configured Target Zones</h2>
+
+            <div class="village-grid">
+                <div class="village-card">
+                    <h4>Meppadi, Kerala</h4>
+                    <div class="village-meta">Wayanad District | ~15,000 Population</div>
+                    <div class="village-tags">
+                        <span class="tag">Western Ghats</span>
+                        <span class="tag">Flash Flood</span>
+                        <span class="tag">Hilly</span>
+                    </div>
+                </div>
+                <div class="village-card">
+                    <h4>Darbhanga, Bihar</h4>
+                    <div class="village-meta">Darbhanga District | ~300,000 Population</div>
+                    <div class="village-tags">
+                        <span class="tag">Gangetic Plain</span>
+                        <span class="tag">Riverine</span>
+                        <span class="tag">Low Elevation</span>
+                    </div>
+                </div>
+                <div class="village-card">
+                    <h4>Dhemaji, Assam</h4>
+                    <div class="village-meta">Dhemaji District | ~50,000 Population</div>
+                    <div class="village-tags">
+                        <span class="tag">Brahmaputra Basin</span>
+                        <span class="tag">Seasonal Overflow</span>
+                        <span class="tag">Floodplain</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="alert info">
+                <strong>Data Sources:</strong>
+                <p>Terrain is derived from Copernicus 30m DEM. Building footprints are sourced via OpenStreetMap (OSM).
+                </p>
+            </div>
+        </div>
+
+        <!-- Understanding Risk -->
+        <div class="section">
+            <h2 class="section-title">Understanding Risk Intelligence</h2>
+
+            <div class="risk-legend">
+                <div class="risk-item high">
+                    <h4>Extreme / High Risk</h4>
+                    <p>Calculated score > 0.8. Typically signifies water depth exceeding 500mm in flat or low-lying
+                        areas. Urgent monitoring required.</p>
+                </div>
+                <div class="risk-item medium">
+                    <h4>Medium Risk</h4>
+                    <p>Score 0.6 – 0.8. Indicates 200–500mm water depth. Potential for localized property damage and
+                        road closures.</p>
+                </div>
+                <div class="risk-item low">
+                    <h4>Low Risk</h4>
+                    <p>Score < 0.6. Minimal water accumulation (< 200mm) or steep terrain where water sheds rapidly
+                            after rainfall.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Important Notes -->
+        <div class="section">
+            <h2 class="section-title">System Reliability</h2>
+
+            <div class="card">
+                <div class="alert success">
+                    <strong>Decision Support Tool:</strong>
+                    <p>This dashboard is designed to aid disaster management authorities in visualizing potential
+                        inundation scenarios. It is optimized for rainfall-driven flash floods and pluvial events.</p>
+                </div>
+
+                <div class="alert warning">
+                    <strong>Technical Limitations:</strong>
+                    <p>The model assumes a uniform rainfall distribution across the village area. It does not
+                        dynamically
+                        account for sub-surface drainage systems or local infrastructure blockage.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>Jal Drishti • Decision Support Intelligence • v2.2.0</p>
+    </div>
+</body>
+
+</html>

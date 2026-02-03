@@ -1,0 +1,7 @@
+{
+  "projectId": "5f2515be-cd4b-47f2-94b6-06117731c47b",
+  "createdAt": 1738569600000,
+  "startupCommands": [
+    "cd /Users/himanshujasoriya/Desktop/himanshucodes101/jaldrishti && python3 -m uvicorn src.main:app --reload --host 0.0.0.0 --port 8000"
+  ]
+}
