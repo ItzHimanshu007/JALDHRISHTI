@@ -369,61 +369,75 @@ class InfrastructureGenerator:
 
 
 class PopulationHeatmapGenerator:
-    """Generates population distribution heatmap."""
+    """Generates population distribution heatmap within village boundaries."""
     
-    def __init__(self, terrain: ValleyTerrainGenerator, num_points: int = 500):
+    # Village-specific bounding boxes (matching VillageBoundaryGenerator)
+    VILLAGE_BBOX = {
+        "wayanad_meppadi": [76.10, 11.52, 76.17, 11.59],
+        "darbhanga": [85.85, 26.12, 85.93, 26.19],
+        "dhemaji": [94.53, 27.45, 94.60, 27.51]
+    }
+    
+    def __init__(self, terrain: ValleyTerrainGenerator, village_id: str = "wayanad_meppadi", num_points: int = 600):
         self.terrain = terrain
+        self.village_id = village_id
         self.num_points = num_points
         
     def generate_heatmap(self) -> Dict:
         """
-        Generate population heatmap with Gaussian distribution.
-        Higher density near riverbed (where people typically settle).
+        Generate population heatmap with realistic distribution.
+        Higher density near center/low elevation areas (where people typically settle).
+        Points are distributed within the village bounding box.
         """
-        if self.terrain.heightmap is None:
-            self.terrain.generate_heightmap()
+        # Get village-specific bbox
+        bbox = self.VILLAGE_BBOX.get(self.village_id, self.VILLAGE_BBOX["wayanad_meppadi"])
+        min_lon, min_lat, max_lon, max_lat = bbox
         
-        config = self.terrain.config
-        size = config.grid_size
-        heightmap = self.terrain.heightmap
+        # Calculate center and spread
+        center_lon = (min_lon + max_lon) / 2
+        center_lat = (min_lat + max_lat) / 2
+        lon_range = max_lon - min_lon
+        lat_range = max_lat - min_lat
         
         features = []
         
-        # Riverbed center (lowest elevation area)
-        # More people settle near the river
-        center_i, center_j = size // 2, size // 2
-        
-        # Generate points with Gaussian distribution
-        np.random.seed(42)  # Reproducibility
+        # Generate points with Gaussian distribution centered in the village
+        np.random.seed(42 + hash(self.village_id) % 1000)  # Reproducible but village-specific
         
         for _ in range(self.num_points):
-            # Gaussian distribution centered on riverbed
-            # Sigma controls spread - smaller = more concentrated
-            i = int(np.clip(np.random.normal(center_i, size * 0.25), 0, size - 1))
-            j = int(np.clip(np.random.normal(center_j, size * 0.15), 0, size - 1))  # Narrower E-W
+            # Gaussian distribution centered on village center
+            # Sigma controls spread - creates natural clustering
+            lon = np.clip(
+                np.random.normal(center_lon, lon_range * 0.25),
+                min_lon, max_lon
+            )
+            lat = np.clip(
+                np.random.normal(center_lat, lat_range * 0.25),
+                min_lat, max_lat
+            )
             
-            # Convert to coordinates
-            lat = config.center_lat + (i - size/2) * config.grid_resolution
-            lon = config.center_lon + (j - size/2) * config.grid_resolution
+            # Calculate distance from center (normalized 0-1)
+            dist_lon = abs(lon - center_lon) / (lon_range / 2)
+            dist_lat = abs(lat - center_lat) / (lat_range / 2)
+            dist_from_center = math.sqrt(dist_lon**2 + dist_lat**2) / math.sqrt(2)
             
-            # Intensity based on elevation (lower = more people)
-            elevation = heightmap[i, j]
-            min_elev = heightmap.min()
-            max_elev = heightmap.max()
+            # Intensity inversely proportional to distance from center
+            # People tend to cluster in central/low areas
+            base_intensity = 1.0 - (dist_from_center * 0.7)
             
-            # Inverse relationship: lower elevation = higher intensity
-            intensity = 1.0 - (elevation - min_elev) / (max_elev - min_elev)
-            intensity = intensity * 0.8 + 0.2  # Scale to 0.2-1.0 range
+            # Add clustering effect - create population hotspots
+            cluster_noise = 0.3 * math.sin(lon * 500) * math.cos(lat * 500)
             
-            # Add some randomness
-            intensity = min(1.0, max(0.1, intensity + np.random.uniform(-0.1, 0.1)))
+            # Final intensity with randomness
+            intensity = base_intensity + cluster_noise + np.random.uniform(-0.15, 0.15)
+            intensity = min(1.0, max(0.1, intensity))
             
             features.append({
                 "type": "Feature",
                 "properties": {
                     "intensity": float(intensity),
                     "weight": float(intensity),
-                    "elevation_m": float(elevation)
+                    "population_density": "high" if intensity > 0.7 else ("medium" if intensity > 0.4 else "low")
                 },
                 "geometry": {
                     "type": "Point",
@@ -449,7 +463,7 @@ def generate_all_data(config: TerrainConfig = None, village_id: str = "wayanad_m
     
     boundary_gen = VillageBoundaryGenerator(terrain, village_id=village_id)
     infra_gen = InfrastructureGenerator(terrain)
-    pop_gen = PopulationHeatmapGenerator(terrain)
+    pop_gen = PopulationHeatmapGenerator(terrain, village_id=village_id)
     
     return {
         "terrain": {

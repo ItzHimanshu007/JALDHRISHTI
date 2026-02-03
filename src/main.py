@@ -98,7 +98,7 @@ def initialize_data(village_id: str = "wayanad_meppadi", force: bool = False):
     # Generate other data
     boundary_gen = VillageBoundaryGenerator(terrain, village_id=village_id)
     infra_gen = InfrastructureGenerator(terrain)
-    pop_gen = PopulationHeatmapGenerator(terrain)
+    pop_gen = PopulationHeatmapGenerator(terrain, village_id=village_id)
     
     # Cache everything
     _cache["heightmap"] = heightmap

@@ -1140,59 +1140,88 @@ function updateTimeUI(idx) {
     document.getElementById('timelineFill').style.width = `${(idx / 6) * 100}%`;
 }
 
+/**
+ * Toggle layer visibility on button click
+ * Called directly from onclick handlers in HTML
+ */
 function setupLayerToggle(btnId, layerId) {
     const btn = document.getElementById(btnId);
     if (!btn) return;
 
-    btn.addEventListener('click', (e) => {
-        // Prevent default behavior if needed
-        e.preventDefault();
+    const isActive = btn.classList.contains('active');
 
+    // Toggle button state
+    if (isActive) {
+        btn.classList.remove('active');
+    } else {
+        btn.classList.add('active');
+    }
 
-        // Toggle state
-        if (isActive) {
-            button.classList.remove('active');
-        } else {
-            button.classList.add('active');
+    // Apply layer visibility change
+    if (appState.map && appState.map.getStyle()) {
+        const village = appState.data?.villages[appState.currentVillageId];
+
+        // Handle population density layer
+        if (layerId === 'population-layer') {
+            togglePopulationHeatmap(!isActive);
+            return;
         }
 
-        // Apply change
-        if (appState.map && appState.map.getStyle()) {
-            if (layerId === 'compare-mode') {
-                toggleCompareMode(!isActive);
-                return;
+        // Handle soil saturation layer
+        if (layerId === 'soil-saturation-layer') {
+            if (!isActive && village) {
+                generateSoilGrid(village);
             }
+            if (appState.map.getLayer('soil-saturation-layer')) {
+                appState.map.setLayoutProperty('soil-saturation-layer', 'visibility', !isActive ? 'visible' : 'none');
+            }
+            return;
+        }
 
-            // Dynamic layers need full vision update to ensure correct data source
-            const dynamicLayers = ['flood-risk-layer', 'population-layer', 'rescue-path-layer', 'soil-saturation-layer'];
-            if (dynamicLayers.includes(layerId)) {
-                if (layerId === 'soil-saturation-layer' && !isActive) { // Changed from isActive to !isActive
-                    // Generating if turning ON
-                    const village = appState.data.villages[appState.currentVillageId];
-                    generateSoilGrid(village);
-                }
-                const village = appState.data.villages[appState.currentVillageId];
+        // Handle flood risk layer
+        if (layerId === 'flood-risk-layer') {
+            const currentLayerId = `flood-risk-layer-${appState.currentTimeStep}`;
+            if (appState.map.getLayer(currentLayerId)) {
+                appState.map.setLayoutProperty(currentLayerId, 'visibility', !isActive ? 'visible' : 'none');
+            }
+            if (village) {
                 updateMapVision(village);
-                // Special handling for rescue path
-                if (layerId === 'rescue-path-layer') {
-                    generateRescuePath(village);
-                }
             }
-            // Static layers can be toggled directly
-            else {
-                if (appState.map.getLayer(layerId)) {
-                    appState.map.setLayoutProperty(layerId, 'visibility', !isActive ? 'visible' : 'none');
-                } else if (!isActive && layerId === '3d-buildings') {
-                    initLayers(); // Try to init if missing
-                    if (appState.map.getLayer(layerId)) {
-                        appState.map.setLayoutProperty(layerId, 'visibility', 'visible');
-                    }
-                } else if (layerId === '3d-terrain') {
-                    appState.map.setTerrain({ 'source': 'terrainSource', 'exaggeration': !isActive ? 1.5 : 0 });
-                }
-            }
+            return;
         }
-    });
+
+        // Handle other static layers
+        if (appState.map.getLayer(layerId)) {
+            appState.map.setLayoutProperty(layerId, 'visibility', !isActive ? 'visible' : 'none');
+        }
+    }
+}
+
+/**
+ * Toggle population density heatmap visibility
+ */
+function togglePopulationHeatmap(show) {
+    if (!appState.map) return;
+
+    // Ensure population data is rendered
+    if (show && appState.apiData.population) {
+        renderAPIPopulation();
+    }
+
+    // Toggle API population layer
+    if (appState.map.getLayer('api-population-layer')) {
+        appState.map.setLayoutProperty('api-population-layer', 'visibility', show ? 'visible' : 'none');
+    }
+
+    // Also toggle legacy population layer if it exists
+    if (appState.map.getLayer('population-layer')) {
+        appState.map.setLayoutProperty('population-layer', 'visibility', show ? 'visible' : 'none');
+    }
+
+    // Show toast notification
+    if (show) {
+        showToast('Population Density', 'Showing population at risk - red areas indicate higher density', 'info');
+    }
 }
 
 function updateSimulationImpact() {
@@ -1955,11 +1984,16 @@ function renderAPIPOIs() {
 
 /**
  * Render population heatmap from API data
+ * Shows population density to identify populations at risk
  */
 function renderAPIPopulation() {
     if (!appState.map || !appState.apiData.population) return;
 
     const population = appState.apiData.population;
+    
+    // Check if button is active to determine initial visibility
+    const isPopBtnActive = document.getElementById('btnLayerPop')?.classList.contains('active');
+    const visibility = isPopBtnActive ? 'visible' : 'none';
 
     if (appState.map.getSource('api-population-source')) {
         appState.map.getSource('api-population-source').setData(population);
@@ -1973,23 +2007,33 @@ function renderAPIPopulation() {
             id: 'api-population-layer',
             type: 'heatmap',
             source: 'api-population-source',
-            layout: { visibility: 'visible' },
+            layout: { visibility: visibility },
             paint: {
                 'heatmap-weight': ['get', 'intensity'],
                 'heatmap-intensity': ['interpolate', ['linear'], ['zoom'], 0, 1, 14, 3],
                 'heatmap-color': [
                     'interpolate', ['linear'], ['heatmap-density'],
-                    0, 'rgba(0, 0, 255, 0)',
-                    0.2, 'rgba(65, 105, 225, 0.4)',
-                    0.4, 'rgba(0, 255, 255, 0.5)',
-                    0.6, 'rgba(0, 255, 0, 0.6)',
-                    0.8, 'rgba(255, 255, 0, 0.7)',
-                    1, 'rgba(255, 0, 0, 0.8)'
+                    0, 'rgba(50, 50, 150, 0)',       // Transparent for low density
+                    0.15, 'rgba(0, 100, 200, 0.4)',  // Blue for low population
+                    0.3, 'rgba(0, 180, 200, 0.5)',   // Cyan for moderate
+                    0.5, 'rgba(100, 200, 100, 0.6)', // Green for medium
+                    0.7, 'rgba(255, 200, 0, 0.75)', // Yellow/Orange for high
+                    0.85, 'rgba(255, 100, 50, 0.85)', // Orange-red for very high
+                    1, 'rgba(255, 0, 0, 0.95)'       // Red for highest density (most at risk)
                 ],
-                'heatmap-radius': ['interpolate', ['linear'], ['zoom'], 0, 2, 14, 30],
-                'heatmap-opacity': 0.7
+                'heatmap-radius': ['interpolate', ['linear'], ['zoom'], 
+                    10, 15,   // Smaller radius when zoomed out
+                    13, 30,   // Medium radius at default zoom
+                    16, 50    // Larger radius when zoomed in
+                ],
+                'heatmap-opacity': 0.8
             }
         });
+    }
+    
+    // Ensure visibility matches button state
+    if (appState.map.getLayer('api-population-layer')) {
+        appState.map.setLayoutProperty('api-population-layer', 'visibility', visibility);
     }
 }
 
