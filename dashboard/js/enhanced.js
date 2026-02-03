@@ -1288,9 +1288,11 @@ function toggleCompareMode(active) {
 // Rescue Path System (Google Maps API Integration)
 // ============================================
 
-// Rescue Path Logic Removed
-
-// Rescue Path Logic Removed
+// Stub function to prevent reference errors (rescue path logic was removed)
+function generateRescuePath(village) {
+    // No-op: Rescue path functionality disabled
+    console.log('Rescue path generation skipped (feature disabled)');
+}
 
 // ============================================
 // Simulation Report Generator

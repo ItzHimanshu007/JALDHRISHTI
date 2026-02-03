@@ -45,8 +45,9 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 import os
 
-# Global state for caching
+# Global state for caching - now village-specific
 _cache: Dict[str, Any] = {
+    "current_village": None,
     "terrain": None,
     "boundary": None,
     "infrastructure": None,
@@ -82,10 +83,9 @@ def get_terrain_config(village_id: str = "wayanad_meppadi") -> TerrainConfig:
 
 
 def initialize_data(village_id: str = "wayanad_meppadi", force: bool = False):
-    """Initialize or refresh cached data."""
-    cache_key = f"init_{village_id}"
-    
-    if not force and _cache.get(cache_key) and _cache["heightmap"] is not None:
+    """Initialize or refresh cached data for a specific village."""
+    # Force regeneration if village changed or force flag is set
+    if not force and _cache.get("current_village") == village_id and _cache["heightmap"] is not None:
         return
     
     config = get_terrain_config(village_id)
@@ -100,7 +100,8 @@ def initialize_data(village_id: str = "wayanad_meppadi", force: bool = False):
     infra_gen = InfrastructureGenerator(terrain)
     pop_gen = PopulationHeatmapGenerator(terrain, village_id=village_id)
     
-    # Cache everything
+    # Cache everything with current village
+    _cache["current_village"] = village_id
     _cache["heightmap"] = heightmap
     _cache["terrain"] = terrain
     _cache["boundary"] = boundary_gen.generate_boundary()
@@ -108,7 +109,6 @@ def initialize_data(village_id: str = "wayanad_meppadi", force: bool = False):
     _cache["population"] = pop_gen.generate_heatmap()
     _cache["config"] = config
     _cache["last_init"] = datetime.now()
-    _cache[cache_key] = True
 
 
 # ============================================

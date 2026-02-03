@@ -371,11 +371,72 @@ class InfrastructureGenerator:
 class PopulationHeatmapGenerator:
     """Generates population distribution heatmap within village boundaries."""
     
-    # Village-specific bounding boxes (matching VillageBoundaryGenerator)
-    VILLAGE_BBOX = {
-        "wayanad_meppadi": [76.10, 11.52, 76.17, 11.59],
-        "darbhanga": [85.85, 26.12, 85.93, 26.19],
-        "dhemaji": [94.53, 27.45, 94.60, 27.51]
+    # Village-specific configurations with unique population patterns
+    VILLAGE_CONFIG = {
+        "wayanad_meppadi": {
+            "bbox": [76.10, 11.52, 76.17, 11.59],
+            "name": "Wayanad Meppadi",
+            "total_population": 15000,
+            "pattern": "hill_settlement",  # Scattered settlements on hillside
+            "clusters": [
+                # Main town center (high density)
+                {"center": [76.135, 11.555], "radius": 0.015, "density": 0.95, "weight": 0.35},
+                # Market area
+                {"center": [76.128, 11.545], "radius": 0.012, "density": 0.85, "weight": 0.20},
+                # Temple/religious area settlement
+                {"center": [76.145, 11.565], "radius": 0.010, "density": 0.75, "weight": 0.15},
+                # School vicinity
+                {"center": [76.115, 11.535], "radius": 0.008, "density": 0.70, "weight": 0.10},
+                # Agricultural workers settlements (scattered)
+                {"center": [76.155, 11.575], "radius": 0.018, "density": 0.45, "weight": 0.12},
+                # Tea estate worker housing
+                {"center": [76.120, 11.580], "radius": 0.012, "density": 0.55, "weight": 0.08},
+            ]
+        },
+        "darbhanga": {
+            "bbox": [85.85, 26.12, 85.93, 26.19],
+            "name": "Darbhanga",
+            "total_population": 45000,
+            "pattern": "river_plain",  # Dense settlements along river plains
+            "clusters": [
+                # Main city center (very high density)
+                {"center": [85.89, 26.155], "radius": 0.020, "density": 0.98, "weight": 0.30},
+                # Old town area
+                {"center": [85.87, 26.145], "radius": 0.018, "density": 0.90, "weight": 0.20},
+                # Railway station vicinity
+                {"center": [85.91, 26.165], "radius": 0.015, "density": 0.85, "weight": 0.15},
+                # College/educational hub
+                {"center": [85.86, 26.175], "radius": 0.012, "density": 0.80, "weight": 0.12},
+                # Industrial/commercial zone
+                {"center": [85.92, 26.135], "radius": 0.016, "density": 0.75, "weight": 0.10},
+                # Riverside settlements (flood-prone, high risk)
+                {"center": [85.88, 26.125], "radius": 0.022, "density": 0.70, "weight": 0.08},
+                # Agricultural village
+                {"center": [85.855, 26.185], "radius": 0.010, "density": 0.50, "weight": 0.05},
+            ]
+        },
+        "dhemaji": {
+            "bbox": [94.53, 27.45, 94.60, 27.51],
+            "name": "Dhemaji",
+            "total_population": 12000,
+            "pattern": "brahmaputra_flood_plain",  # Linear settlements along elevated areas
+            "clusters": [
+                # District headquarters (main town)
+                {"center": [94.565, 27.48], "radius": 0.018, "density": 0.90, "weight": 0.30},
+                # Hospital/administrative area
+                {"center": [94.555, 27.475], "radius": 0.012, "density": 0.85, "weight": 0.18},
+                # Market/bazaar area
+                {"center": [94.575, 27.485], "radius": 0.010, "density": 0.82, "weight": 0.15},
+                # Riverbank fishing community (high flood risk)
+                {"center": [94.545, 27.455], "radius": 0.020, "density": 0.65, "weight": 0.12},
+                # Northern agricultural settlement
+                {"center": [94.585, 27.500], "radius": 0.015, "density": 0.55, "weight": 0.10},
+                # Tribal hamlet (scattered)
+                {"center": [94.540, 27.495], "radius": 0.016, "density": 0.45, "weight": 0.08},
+                # Tea garden workers colony
+                {"center": [94.592, 27.465], "radius": 0.008, "density": 0.60, "weight": 0.07},
+            ]
+        }
     }
     
     def __init__(self, terrain: ValleyTerrainGenerator, village_id: str = "wayanad_meppadi", num_points: int = 600):
@@ -385,59 +446,112 @@ class PopulationHeatmapGenerator:
         
     def generate_heatmap(self) -> Dict:
         """
-        Generate population heatmap with realistic distribution.
-        Higher density near center/low elevation areas (where people typically settle).
-        Points are distributed within the village bounding box.
+        Generate population heatmap with realistic, village-specific distribution.
+        Each village has unique settlement patterns based on geography and demographics.
         """
-        # Get village-specific bbox
-        bbox = self.VILLAGE_BBOX.get(self.village_id, self.VILLAGE_BBOX["wayanad_meppadi"])
-        min_lon, min_lat, max_lon, max_lat = bbox
+        # Get village-specific configuration
+        config = self.VILLAGE_CONFIG.get(self.village_id, self.VILLAGE_CONFIG["wayanad_meppadi"])
+        bbox = config["bbox"]
+        clusters = config["clusters"]
+        pattern = config["pattern"]
         
-        # Calculate center and spread
-        center_lon = (min_lon + max_lon) / 2
-        center_lat = (min_lat + max_lat) / 2
+        min_lon, min_lat, max_lon, max_lat = bbox
         lon_range = max_lon - min_lon
         lat_range = max_lat - min_lat
         
         features = []
         
-        # Generate points with Gaussian distribution centered in the village
-        np.random.seed(42 + hash(self.village_id) % 1000)  # Reproducible but village-specific
+        # Set unique seed per village for reproducibility
+        seed_map = {"wayanad_meppadi": 42, "darbhanga": 137, "dhemaji": 256}
+        np.random.seed(seed_map.get(self.village_id, 42))
         
-        for _ in range(self.num_points):
-            # Gaussian distribution centered on village center
-            # Sigma controls spread - creates natural clustering
-            lon = np.clip(
-                np.random.normal(center_lon, lon_range * 0.25),
-                min_lon, max_lon
-            )
-            lat = np.clip(
-                np.random.normal(center_lat, lat_range * 0.25),
-                min_lat, max_lat
-            )
+        # Calculate points per cluster based on weights
+        total_weight = sum(c["weight"] for c in clusters)
+        points_per_cluster = [(c, int(self.num_points * c["weight"] / total_weight)) for c in clusters]
+        
+        # Add remaining points to first cluster
+        assigned = sum(p[1] for p in points_per_cluster)
+        if assigned < self.num_points:
+            points_per_cluster[0] = (points_per_cluster[0][0], points_per_cluster[0][1] + (self.num_points - assigned))
+        
+        for cluster, num_pts in points_per_cluster:
+            cluster_center = cluster["center"]
+            cluster_radius = cluster["radius"]
+            base_density = cluster["density"]
             
-            # Calculate distance from center (normalized 0-1)
-            dist_lon = abs(lon - center_lon) / (lon_range / 2)
-            dist_lat = abs(lat - center_lat) / (lat_range / 2)
-            dist_from_center = math.sqrt(dist_lon**2 + dist_lat**2) / math.sqrt(2)
-            
-            # Intensity inversely proportional to distance from center
-            # People tend to cluster in central/low areas
-            base_intensity = 1.0 - (dist_from_center * 0.7)
-            
-            # Add clustering effect - create population hotspots
-            cluster_noise = 0.3 * math.sin(lon * 500) * math.cos(lat * 500)
-            
-            # Final intensity with randomness
-            intensity = base_intensity + cluster_noise + np.random.uniform(-0.15, 0.15)
-            intensity = min(1.0, max(0.1, intensity))
+            for _ in range(num_pts):
+                # Generate point within cluster using Gaussian distribution
+                lon = np.random.normal(cluster_center[0], cluster_radius * 0.5)
+                lat = np.random.normal(cluster_center[1], cluster_radius * 0.5)
+                
+                # Ensure within bbox
+                lon = np.clip(lon, min_lon, max_lon)
+                lat = np.clip(lat, min_lat, max_lat)
+                
+                # Calculate distance from cluster center
+                dist = math.sqrt(
+                    ((lon - cluster_center[0]) / cluster_radius) ** 2 +
+                    ((lat - cluster_center[1]) / cluster_radius) ** 2
+                )
+                
+                # Intensity based on distance from cluster center and base density
+                falloff = max(0, 1 - dist * 0.5)
+                
+                # Apply pattern-specific intensity modifiers
+                if pattern == "hill_settlement":
+                    # Wayanad: More scattered, lower overall density
+                    intensity = base_density * falloff * np.random.uniform(0.6, 1.0)
+                elif pattern == "river_plain":
+                    # Darbhanga: Higher density, more uniform clusters
+                    intensity = base_density * falloff * np.random.uniform(0.75, 1.0)
+                elif pattern == "brahmaputra_flood_plain":
+                    # Dhemaji: Linear patterns, moderate density
+                    # Add linear bias along east-west axis
+                    linear_factor = 1.0 - abs(lat - 27.48) * 5
+                    linear_factor = max(0.4, min(1.0, linear_factor))
+                    intensity = base_density * falloff * linear_factor * np.random.uniform(0.65, 1.0)
+                else:
+                    intensity = base_density * falloff * np.random.uniform(0.7, 1.0)
+                
+                # Clamp intensity
+                intensity = min(1.0, max(0.1, intensity))
+                
+                # Determine density category
+                if intensity > 0.75:
+                    density_cat = "high"
+                elif intensity > 0.45:
+                    density_cat = "medium"
+                else:
+                    density_cat = "low"
+                
+                features.append({
+                    "type": "Feature",
+                    "properties": {
+                        "intensity": float(intensity),
+                        "weight": float(intensity),
+                        "population_density": density_cat,
+                        "cluster_type": self._get_cluster_type(cluster, pattern)
+                    },
+                    "geometry": {
+                        "type": "Point",
+                        "coordinates": [lon, lat]
+                    }
+                })
+        
+        # Add scattered background population (10% of total)
+        num_scattered = int(self.num_points * 0.1)
+        for _ in range(num_scattered):
+            lon = np.random.uniform(min_lon, max_lon)
+            lat = np.random.uniform(min_lat, max_lat)
+            intensity = np.random.uniform(0.1, 0.35)
             
             features.append({
                 "type": "Feature",
                 "properties": {
                     "intensity": float(intensity),
                     "weight": float(intensity),
-                    "population_density": "high" if intensity > 0.7 else ("medium" if intensity > 0.4 else "low")
+                    "population_density": "low",
+                    "cluster_type": "scattered"
                 },
                 "geometry": {
                     "type": "Point",
@@ -447,8 +561,27 @@ class PopulationHeatmapGenerator:
         
         return {
             "type": "FeatureCollection",
-            "features": features
+            "features": features,
+            "metadata": {
+                "village_id": self.village_id,
+                "village_name": config["name"],
+                "pattern": pattern,
+                "total_points": len(features),
+                "estimated_population": config["total_population"]
+            }
         }
+    
+    def _get_cluster_type(self, cluster: Dict, pattern: str) -> str:
+        """Determine cluster type based on density and pattern."""
+        density = cluster["density"]
+        if density > 0.85:
+            return "urban_center"
+        elif density > 0.70:
+            return "commercial"
+        elif density > 0.55:
+            return "residential"
+        else:
+            return "rural"
 
 
 def generate_all_data(config: TerrainConfig = None, village_id: str = "wayanad_meppadi") -> Dict[str, Any]:
