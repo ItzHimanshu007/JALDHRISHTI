@@ -12,10 +12,10 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- Bench/Font -->
     <link
-        href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Inter:wght@300;400;600&family=JetBrains+Mono:wght@400;500&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Inter:wght@300;400;600&display=swap"
         rel="stylesheet">
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="css/styles.css?v=3.0">
+    <link rel="stylesheet" href="css/styles.css?v=2.9">
 </head>
 
 <body>
@@ -27,305 +27,255 @@
 
         <!-- Header -->
         <div class="hud-header pointer-events-auto">
-            <div class="brand">
-                <span class="brand-icon">🌊</span>
-                <span class="brand-text">Jal Drishti</span>
-                <span class="brand-tag">v2.4</span>
+            <div class="brand">Jal Drishti
+                <div class="scan-line"></div>
             </div>
             <div class="nav-links" id="main-nav-links">
                 <a href="user-guide.html" class="nav-link" id="link-user-guide">User Guide</a>
                 <a href="methodology.html" class="nav-link" id="link-methodology">Methodology</a>
             </div>
             <div class="system-status">
-                <div class="status-indicator">
-                    <span class="pulse-dot"></span>
-                    <span>LIVE</span>
-                </div>
-                <span id="missionClock" class="mission-clock">--:--:-- UTC</span>
+                <span id="missionClock"
+                    style="font-family: var(--font-tech); font-size: 0.85rem; color: var(--accent-secondary);">--:--:--
+                    UTC</span>
             </div>
         </div>
 
-        <!-- Left Command Panel - Redesigned -->
+        <!-- Left Command Panel -->
         <div class="hud-left pointer-events-auto">
-            
-            <!-- Mission Zone Card -->
-            <div class="neo-panel mission-zone-panel">
-                <div class="neo-panel-header">
-                    <div class="header-left">
-                        <span class="header-icon">📍</span>
-                        <span class="header-title">Mission Zone</span>
-                    </div>
-                    <button id="btnGenerateReport" class="neo-btn-sm">
-                        <span>📄</span> Report
-                    </button>
+            <!-- Location Selector -->
+            <div class="glass-panel">
+                <div class="panel-header">
+                    Mission Zone
                 </div>
-                <div class="neo-panel-body">
-                    <div class="zone-selector-wrapper">
-                        <select id="villageSelector" class="neo-select">
-                            <option value="wayanad_meppadi">Meppadi, Kerala</option>
-                            <option value="darbhanga">Darbhanga, Bihar</option>
-                            <option value="dhemaji">Dhemaji, Assam</option>
-                        </select>
-                        <div class="select-glow"></div>
+
+                <select id="villageSelector">
+                    <option value="wayanad_meppadi">Meppadi (Kerala)</option>
+                    <option value="darbhanga">Darbhanga (Bihar)</option>
+                    <option value="dhemaji">Dhemaji (Assam)</option>
+                </select>
+                <div id="villageInfo"
+                    style="margin-top:8px; font-size:0.75rem; color:var(--text-muted); display:flex; justify-content:space-between; align-items:center">
+                    <span>--</span>
+                    <button id="btnGenerateReport" class="action-btn"
+                        style="width:auto; padding:4px 8px; font-size:0.7rem; margin:0">📄 REPORT</button>
+                </div>
+            </div>
+
+            <!-- Model Intelligence Panel -->
+            <div class="glass-panel model-intel-panel">
+                <div class="panel-header">
+                    <span style="display:flex; align-items:center; gap:8px;">
+                        <span class="pulse-dot"></span>
+                        AI Analysis Engine
+                    </span>
+                    <span class="model-version">v3.0</span>
+                </div>
+                
+                <!-- Model Metrics Grid -->
+                <div class="intel-metrics-grid">
+                    <div class="intel-metric">
+                        <div class="intel-metric-icon">🏔️</div>
+                        <div class="intel-metric-content">
+                            <div class="intel-metric-label">Terrain Analysis</div>
+                            <div class="intel-metric-value" id="intelStability">--</div>
+                        </div>
                     </div>
-                    <div id="villageInfo" class="zone-meta">
-                        <span class="zone-stat">--</span>
+                    <div class="intel-metric">
+                        <div class="intel-metric-icon">💧</div>
+                        <div class="intel-metric-content">
+                            <div class="intel-metric-label">Flood Type</div>
+                            <div class="intel-metric-value" id="intelFocus">--</div>
+                        </div>
+                    </div>
+                    <div class="intel-metric">
+                        <div class="intel-metric-icon">⚡</div>
+                        <div class="intel-metric-content">
+                            <div class="intel-metric-label">Impact Zone</div>
+                            <div class="intel-metric-value" id="intelImpact">--</div>
+                        </div>
+                    </div>
+                    <div class="intel-metric">
+                        <div class="intel-metric-icon">🎯</div>
+                        <div class="intel-metric-content">
+                            <div class="intel-metric-label">Confidence</div>
+                            <div class="intel-metric-value" id="intelConfidence">--</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Model Accuracy Bar -->
+                <div class="model-accuracy-section">
+                    <div class="accuracy-header">
+                        <span>Model Performance</span>
+                        <span id="modelAccuracyValue">--</span>
+                    </div>
+                    <div class="accuracy-bar">
+                        <div class="accuracy-fill" id="accuracyFill"></div>
+                    </div>
+                    <div class="model-tags">
+                        <span class="model-tag">LSTM</span>
+                        <span class="model-tag">BiLSTM</span>
+                        <span class="model-tag">XGBoost</span>
                     </div>
                 </div>
             </div>
 
-            <!-- Model Intelligence Card - Enhanced -->
-            <div class="neo-panel intel-panel">
-                <div class="neo-panel-header">
-                    <div class="header-left">
-                        <span class="header-icon">🧠</span>
-                        <span class="header-title">Model Intelligence</span>
+            <!-- Risk Metrics -->
+            <div class="glass-panel">
+                <div class="panel-header">Risk Metrics</div>
+                <div class="stat-grid">
+                    <div class="stat-card">
+                        <div class="stat-val" id="valElev">--</div>
+                        <div class="stat-label">Elevation</div>
                     </div>
-                    <span class="neo-badge ai-badge">AI Core</span>
+                    <div class="stat-card">
+                        <div class="stat-val" id="valSlope">--</div>
+                        <div class="stat-label">Slope</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-val" id="valRunoff">--</div>
+                        <div class="stat-label">Hydro Index</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-val" id="valArea">--</div>
+                        <div class="stat-label">Risk Area</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-val" id="valSoil">--</div>
+                        <div class="stat-label">Soil Satur.</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-val" id="totalPopRisk">--</div>
+                        <div class="stat-label">Exposed Pop.</div>
+                    </div>
                 </div>
-                <div class="neo-panel-body">
-                    <div class="intel-grid">
-                        <div class="intel-item">
-                            <div class="intel-label">Terrain Analysis</div>
-                            <div class="intel-value" id="intelStability">--</div>
-                            <div class="intel-bar">
-                                <div class="intel-bar-fill" id="intelStabilityBar" style="width: 0%"></div>
+            </div>
+            <!-- Precipitation Forecast -->
+            <div class="glass-panel">
+                <div class="panel-header" style="display:flex; justify-content:space-between; align-items:center">
+                    <span>Yearly Precipitation Forecast</span>
+                    <span
+                        style="font-size:0.6rem; background:rgba(6,182,212,0.2); color:var(--accent-secondary); padding:2px 6px; border-radius:10px; border:1px solid rgba(6,182,212,0.3)">GROUNDED
+                        AI</span>
+                </div>
+                <div style="height:150px"><canvas id="yearlyChart"></canvas></div>
+            </div>
+
+            <!-- Live Weather -->
+            <div class="glass-panel" id="weatherPanel">
+                <div class="panel-header">Live Conditions <span id="weatherTime"
+                        style="font-weight:400; color:var(--text-muted)">--:--</span></div>
+                <div style="display:flex; align-items:center; justify-content:space-between">
+                    <div style="display:flex; align-items:center; gap:10px">
+                        <div id="weatherIcon" style="font-size:2.5rem">☀️</div>
+                        <div>
+                            <div id="weatherTemp" style="font-size:1.8rem; font-weight:700; color:var(--text-primary)">
+                                --°C</div>
+                            <div id="weatherDesc" style="font-size:0.8rem; color:var(--text-secondary)">Scanning...
                             </div>
-                        </div>
-                        <div class="intel-item">
-                            <div class="intel-label">Hydro Focus</div>
-                            <div class="intel-value" id="intelFocus">--</div>
-                            <div class="intel-bar">
-                                <div class="intel-bar-fill hydro" id="intelFocusBar" style="width: 0%"></div>
-                            </div>
-                        </div>
-                        <div class="intel-item full-width">
-                            <div class="intel-label">Impact Prediction</div>
-                            <div class="intel-value large" id="intelImpact">--</div>
                         </div>
                     </div>
-                    <div class="model-footer">
-                        <div class="accuracy-ring">
-                            <svg viewBox="0 0 36 36" class="circular-chart">
-                                <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
-                                <path class="circle" id="accuracyCircle" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
-                            </svg>
-                            <span class="accuracy-text" id="modelAccuracy">--%</span>
-                        </div>
-                        <div class="model-meta">
-                            <span class="meta-label">Model Confidence</span>
-                            <span class="meta-value" id="modelStatus">Initializing...</span>
-                        </div>
+                    <div style="text-align:right; font-size:0.75rem; color:var(--text-muted)">
+                        <div>Wind: <span id="weatherWind" style="color:var(--accent-primary)">--</span> km/h</div>
+                        <div>Hum: <span id="weatherHum">--</span>%</div>
                     </div>
                 </div>
             </div>
 
-            <!-- Risk Metrics Card - Enhanced -->
-            <div class="neo-panel metrics-panel">
-                <div class="neo-panel-header">
-                    <div class="header-left">
-                        <span class="header-icon">📊</span>
-                        <span class="header-title">Risk Metrics</span>
-                    </div>
-                    <span class="neo-badge" id="riskBadge">STABLE</span>
-                </div>
-                <div class="neo-panel-body">
-                    <div class="metrics-grid">
-                        <div class="metric-card">
-                            <div class="metric-icon">⛰️</div>
-                            <div class="metric-data">
-                                <span class="metric-value" id="valElev">--</span>
-                                <span class="metric-label">Elevation</span>
-                            </div>
-                        </div>
-                        <div class="metric-card">
-                            <div class="metric-icon">📐</div>
-                            <div class="metric-data">
-                                <span class="metric-value" id="valSlope">--</span>
-                                <span class="metric-label">Slope</span>
-                            </div>
-                        </div>
-                        <div class="metric-card">
-                            <div class="metric-icon">💧</div>
-                            <div class="metric-data">
-                                <span class="metric-value" id="valRunoff">--</span>
-                                <span class="metric-label">Hydro Index</span>
-                            </div>
-                        </div>
-                        <div class="metric-card">
-                            <div class="metric-icon">⚠️</div>
-                            <div class="metric-data">
-                                <span class="metric-value" id="valArea">--</span>
-                                <span class="metric-label">Risk Area</span>
-                            </div>
-                        </div>
-                        <div class="metric-card highlight">
-                            <div class="metric-icon">🌱</div>
-                            <div class="metric-data">
-                                <span class="metric-value" id="valSoil">--</span>
-                                <span class="metric-label">Soil Satur.</span>
-                            </div>
-                        </div>
-                        <div class="metric-card highlight danger">
-                            <div class="metric-icon">👥</div>
-                            <div class="metric-data">
-                                <span class="metric-value" id="totalPopRisk">--</span>
-                                <span class="metric-label">Pop. at Risk</span>
-                            </div>
-                        </div>
-                    </div>
+            <!-- Short-term Rainfall Forecast -->
+            <div class="glass-panel">
+                <div class="panel-header">Short-term Rainfall (7-Day)</div>
+                <div style="height:120px"><canvas id="shortTermChart"></canvas></div>
+                <div id="forecastSummary"
+                    style="font-size:0.6rem; color:var(--text-muted); margin-top:5px; text-align:right">
+                    Total expected: -- mm
                 </div>
             </div>
 
-            <!-- Yearly Forecast Card -->
-            <div class="neo-panel forecast-panel">
-                <div class="neo-panel-header">
-                    <div class="header-left">
-                        <span class="header-icon">📈</span>
-                        <span class="header-title">Yearly Forecast</span>
-                    </div>
-                    <span class="neo-badge grounded">Grounded AI</span>
-                </div>
-                <div class="neo-panel-body">
-                    <div class="chart-container">
-                        <canvas id="yearlyChart"></canvas>
-                    </div>
-                    <div class="forecast-footer">
-                        <div class="forecast-stat">
-                            <span class="stat-label">Weekly</span>
-                            <span class="stat-value" id="valWeekly">--</span>
-                        </div>
-                        <div class="forecast-stat">
-                            <span class="stat-label">Flood Prob.</span>
-                            <span class="stat-value" id="valMonthly">--</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Live Weather Card -->
-            <div class="neo-panel weather-panel">
-                <div class="neo-panel-header">
-                    <div class="header-left">
-                        <span class="header-icon">🌡️</span>
-                        <span class="header-title">Live Conditions</span>
-                    </div>
-                    <span class="weather-time" id="weatherTime">--:--</span>
-                </div>
-                <div class="neo-panel-body">
-                    <div class="weather-main">
-                        <div class="weather-icon-wrap">
-                            <span id="weatherIcon" class="weather-icon">☀️</span>
-                        </div>
-                        <div class="weather-temp-wrap">
-                            <span id="weatherTemp" class="weather-temp">--°C</span>
-                            <span id="weatherDesc" class="weather-desc">Loading...</span>
-                        </div>
-                    </div>
-                    <div class="weather-details">
-                        <div class="weather-detail">
-                            <span class="detail-icon">💨</span>
-                            <span class="detail-value"><span id="weatherWind">--</span> km/h</span>
-                        </div>
-                        <div class="weather-detail">
-                            <span class="detail-icon">💧</span>
-                            <span class="detail-value"><span id="weatherHum">--</span>%</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Short-term Forecast Card -->
-            <div class="neo-panel shortterm-panel">
-                <div class="neo-panel-header">
-                    <div class="header-left">
-                        <span class="header-icon">🌧️</span>
-                        <span class="header-title">7-Day Rainfall</span>
-                    </div>
-                </div>
-                <div class="neo-panel-body">
-                    <div class="chart-container small">
-                        <canvas id="shortTermChart"></canvas>
-                    </div>
-                    <div id="forecastSummary" class="forecast-summary">
-                        Loading forecast...
-                    </div>
-                </div>
-            </div>
-
+            <!-- DSS Panel Removed as per request -->
         </div>
 
         <!-- Right Command Panel -->
         <div class="hud-right pointer-events-auto">
 
             <!-- Deep Scan Inspector -->
-            <div id="cellInspector" class="neo-panel scan-panel" style="display:none;">
-                <div class="scanning-line"></div>
-                <div class="neo-panel-header">
-                    <div class="header-left">
-                        <span class="header-icon">🔍</span>
-                        <span class="header-title">Tactical Scan</span>
-                    </div>
-                    <button onclick="closeInspector()" class="close-btn">✕</button>
+            <div id="cellInspector" class="glass-panel"
+                style="display:none; border-left: 3px solid var(--accent-primary); position: relative; overflow: hidden;">
+                <div class="scanning-indicator"></div>
+                <div class="panel-header">
+                    <span style="display:flex; align-items:center; gap:8px;">
+                        <span class="layer-icon">🔍</span> TACTICAL SCAN
+                    </span>
+                    <button onclick="closeInspector()"
+                        style="border:none; background:none; color:var(--text-muted); cursor:pointer; font-size: 1.2rem;">✕</button>
                 </div>
-                <div id="inspectTerrainType" class="scan-terrain">--</div>
-                <div class="neo-panel-body">
-                    <div class="scan-grid">
-                        <div class="scan-item">
-                            <span class="scan-label">Elevation</span>
-                            <span class="scan-value" id="inspectElev">--</span>
-                        </div>
-                        <div class="scan-item">
-                            <span class="scan-label">Water Depth</span>
-                            <span class="scan-value" id="inspectDepth">--</span>
-                        </div>
-                        <div class="scan-item highlight">
-                            <span class="scan-label">Pop. at Risk</span>
-                            <span class="scan-value danger" id="inspectPopAtRisk">--</span>
-                        </div>
-                        <div class="scan-item">
-                            <span class="scan-label">Density</span>
-                            <span class="scan-value" id="inspectDensity">--</span>
+
+                <div id="inspectTerrainType"
+                    style="font-family: var(--font-tech); font-size: 0.9rem; color: var(--accent-secondary); margin-bottom: 12px; font-weight: 600; text-transform: uppercase; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 8px;">
+                    --</div>
+
+                <div class="inspector-grid">
+                    <div class="inspector-item">
+                        <div class="label-tiny">ELEVATION</div>
+                        <div class="val-mono" id="inspectElev">--</div>
+                    </div>
+                    <div class="inspector-item">
+                        <div class="label-tiny">WATER DEPTH</div>
+                        <div class="val-mono" id="inspectDepth">--</div>
+                    </div>
+                    <div class="inspector-item">
+                        <div class="label-tiny">POPULATION AT RISK</div>
+                        <div class="val-mono" id="inspectPopAtRisk" style="color: #f97316;">--</div>
+                    </div>
+                    <div class="inspector-item">
+                        <div class="label-tiny">DENSITY</div>
+                        <div class="val-mono" id="inspectDensity">--</div>
+                    </div>
+                </div>
+
+                <div
+                    style="margin-top:15px; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
+                    <div class="label-tiny">RISK ASSESSMENT</div>
+                    <div id="inspectRisk"
+                        style="font-size:1.3rem; font-weight:700; color:var(--text-muted); letter-spacing:1px; margin: 4px 0;">
+                        SCANNING...</div>
+                    <div class="risk-bar"
+                        style="height:6px; width:100%; background:#1e293b; margin-top:8px; border-radius:10px; position:relative; overflow: hidden;">
+                        <div class="risk-marker"
+                            style="position:absolute; width:100%; height:100%; background:var(--accent-primary); left:-100%; transition:left 0.5s cubic-bezier(0.4, 0, 0.2, 1);">
                         </div>
                     </div>
-                    <div class="risk-assessment">
-                        <span class="risk-label">Risk Assessment</span>
-                        <span class="risk-value" id="inspectRisk">SCANNING...</span>
-                        <div class="risk-bar">
-                            <div class="risk-bar-fill risk-marker"></div>
-                        </div>
-                    </div>
-                    <div id="inspectRiskFactors" class="risk-factors"></div>
-                    <div id="inspectEvacuation" class="evac-alert" style="display:none;">--</div>
+                </div>
+
+                <div id="inspectRiskFactors" style="margin-top:12px; display:flex; gap:6px; flex-wrap:wrap;"></div>
+
+                <div id="inspectEvacuation"
+                    style="margin-top:12px; padding:10px; background:rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.2); border-left:3px solid #ef4444; font-size:0.75rem; color: #fca5a5; display:none; line-height: 1.4;">
+                    --
                 </div>
             </div>
 
-            <!-- Layer Controls - Redesigned -->
-            <div class="neo-panel layers-panel">
-                <div class="neo-panel-header">
-                    <div class="header-left">
-                        <span class="header-icon">📡</span>
-                        <span class="header-title">Layer Controls</span>
-                    </div>
+            <!-- Layer Controls -->
+            <div class="glass-panel">
+                <div class="panel-header">
+                    <span style="display:flex; align-items:center; gap:8px;">
+                        <span class="layer-icon">📡</span> LAYER OVERLAYS
+                    </span>
                 </div>
-                <div class="neo-panel-body">
-                    <div class="layer-buttons">
-                        <button id="btnLayerPop" class="neo-layer-btn" onclick="setupLayerToggle('btnLayerPop', 'population-layer')">
-                            <span class="layer-icon">👥</span>
-                            <span class="layer-text">Population Density</span>
-                            <span class="layer-toggle"></span>
-                        </button>
-                        <button id="btnFindRescue" class="neo-layer-btn rescue" onclick="toggleRescueMode()">
-                            <span class="layer-icon">🛟</span>
-                            <span class="layer-text">Find Rescue Path</span>
-                            <span class="layer-toggle"></span>
-                        </button>
-                        <button id="btnLayerRisk" class="neo-layer-btn active" onclick="setupLayerToggle('btnLayerRisk', 'flood-risk-layer')">
-                            <span class="layer-icon">🌊</span>
-                            <span class="layer-text">Flood Risk Grid</span>
-                            <span class="layer-toggle"></span>
-                        </button>
-                    </div>
+                <div style="display: flex; flex-direction: column; gap: 4px;">
+                    <button id="btnLayerPop" class="layer-btn"
+                        onclick="setupLayerToggle('btnLayerPop', 'population-layer')">
+                        <span class="layer-icon">👥</span> Population Density
+                    </button>
+                    <button id="btnFindRescue" class="layer-btn"
+                        onclick="toggleRescueMode()">
+                        <span class="layer-icon">🛟</span> Find Best Rescue Path
+                    </button>
+                    <button id="btnLayerRisk" class="layer-btn active"
+                        onclick="setupLayerToggle('btnLayerRisk', 'flood-risk-layer')">
+                        <span class="layer-icon">🌊</span> Flood Risk Grid
+                    </button>
                 </div>
             </div>
 
@@ -366,12 +316,13 @@
             </div>
 
             <!-- Simulation Report Panel (Hidden by default) -->
-            <div id="simulationReport" class="neo-panel" style="display:none; margin-top:10px; padding:15px;">
-                <div class="neo-panel-header">
-                    <span class="header-title">📊 Simulation Report</span>
-                    <button id="closeReport" class="close-btn">✕</button>
+            <div id="simulationReport" class="glass-panel" style="display:none; margin-top:10px; padding:15px;">
+                <div class="panel-header" style="display:flex; justify-content:space-between; align-items:center;">
+                    <span>📊 Simulation Report</span>
+                    <button id="closeReport"
+                        style="background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:1.2rem;">✕</button>
                 </div>
-                <div id="reportContent" class="report-content"></div>
+                <div id="reportContent" style="margin-top:10px; font-size:0.8rem; line-height:1.6;"></div>
             </div>
         </div>
 
@@ -379,15 +330,25 @@
 
     <!-- Loading Overlay -->
     <div id="loadingOverlay">
-        <div class="loading-content">
-            <div class="loading-logo">🌊</div>
-            <div class="loading-brand">Jal Drishti</div>
-            <div class="loading-text">Initializing Mission Control...</div>
-            <div class="loading-spinner"></div>
+        <div style="text-align: center;">
+            <div
+                style="font-family: var(--font-tech, 'Rajdhani', sans-serif); font-size: 1.5rem; color: #22d3ee; margin-bottom: 10px;">
+                Jal Drishti</div>
+            <div style="font-size: 0.9rem; color: #94a3b8;">Initializing Mission Control...</div>
+            <div
+                style="margin-top: 20px; width: 40px; height: 40px; border: 3px solid rgba(34, 211, 238, 0.3); border-top-color: #22d3ee; border-radius: 50%; animation: spin 1s linear infinite; margin: 20px auto;">
+            </div>
         </div>
     </div>
+    <style>
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
 
-    <script src="js/enhanced.js?v=3.0"></script>
+    <script src="js/enhanced.js?v=2.9"></script>
 </body>
 
 </html>

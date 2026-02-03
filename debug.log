@@ -22,11 +22,3 @@
 2026-02-03T11:15:23.217Z [console][log] ✓ Map fully loaded with API layers
 2026-02-03T11:15:23.478Z [console][log] Live Weather Update [wayanad_meppadi]: 27.5°C
 2026-02-03T11:15:23.713Z [console][log] Live Weather Update [wayanad_meppadi]: 27.5°C
-2026-02-03T11:23:29.934Z [console][log] ✓ Loaded data from API
-2026-02-03T11:23:30.102Z [console][log] Generating flood grid for wayanad_meppadi: Intensity 0
-2026-02-03T11:23:30.102Z [console][warn] Intensity too low, returning empty grid
-2026-02-03T11:23:30.102Z [console][log] [DEBUG] Generated 0 flood tiles for wayanad_meppadi_0h_0
-2026-02-03T11:23:30.104Z [console][error] MapLibre Error: [Object]
-2026-02-03T11:23:30.105Z [console][log] ✓ Map fully loaded with API layers
-2026-02-03T11:23:30.156Z [console][log] Live Weather Update [wayanad_meppadi]: 27.5°C
-2026-02-03T11:23:30.399Z [console][log] Live Weather Update [wayanad_meppadi]: 27.5°C
