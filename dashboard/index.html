@@ -186,6 +186,14 @@
                         <div class="label-tiny">WATER DEPTH</div>
                         <div class="val-mono" id="inspectDepth">--</div>
                     </div>
+                    <div class="inspector-item">
+                        <div class="label-tiny">POPULATION AT RISK</div>
+                        <div class="val-mono" id="inspectPopAtRisk" style="color: #f97316;">--</div>
+                    </div>
+                    <div class="inspector-item">
+                        <div class="label-tiny">DENSITY</div>
+                        <div class="val-mono" id="inspectDensity">--</div>
+                    </div>
                 </div>
 
                 <div
@@ -222,9 +230,9 @@
                         onclick="setupLayerToggle('btnLayerPop', 'population-layer')">
                         <span class="layer-icon">👥</span> Population Density
                     </button>
-                    <button id="btnLayerSoil" class="layer-btn"
-                        onclick="setupLayerToggle('btnLayerSoil', 'soil-saturation-layer')">
-                        <span class="layer-icon">🌱</span> Soil Saturation
+                    <button id="btnFindRescue" class="layer-btn"
+                        onclick="toggleRescueMode()">
+                        <span class="layer-icon">🛟</span> Find Best Rescue Path
                     </button>
                     <button id="btnLayerRisk" class="layer-btn active"
                         onclick="setupLayerToggle('btnLayerRisk', 'flood-risk-layer')">

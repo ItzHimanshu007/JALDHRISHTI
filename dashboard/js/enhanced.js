@@ -558,10 +558,22 @@ function syncUI() {
     const monthlyProb = (village.forecast?.yearly?.yearly_summary?.flood_probability * 100).toFixed(0);
     safeUpdate('valMonthly', `${monthlyProb} %`);
 
-    // Update Chart Title Header
+    // Update Chart Title Header with more info
     const chartTitle = document.querySelector('#yearlyChart').closest('.glass-panel').querySelector('.panel-header');
     if (chartTitle) {
-        chartTitle.textContent = `Yearly Prediction: ${village.info.name}`;
+        const yearlySummary = village.forecast?.yearly?.yearly_summary || {};
+        const totalRainfall = Math.round(yearlySummary.expected_rainfall_mm || 0);
+        const peakMonth = yearlySummary.peak_risk_month || 'July';
+        const highRiskDays = yearlySummary.total_high_risk_days || 0;
+        chartTitle.innerHTML = `
+            <span style="display:flex; align-items:center; gap:6px;">
+                <span class="layer-icon">📊</span> 
+                ${village.info.name} - 2026 Forecast
+            </span>
+            <span style="font-size:0.65rem; color:var(--text-muted); font-weight:400;">
+                Total: ${totalRainfall.toLocaleString()}mm | Peak: ${peakMonth} | ⚠️${highRiskDays} risk days
+            </span>
+        `;
     }
 
     updateMapVision(village);
@@ -579,37 +591,152 @@ function renderEnhancedCharts(village) {
         const ctxYearly = cvsYearly.getContext('2d');
         if (appState.charts.yearly) appState.charts.yearly.destroy();
 
+        // Calculate yearly stats
+        const yearlySummary = village.forecast?.yearly?.yearly_summary || {};
+        const totalRainfall = months.reduce((sum, m) => sum + m.expected_rainfall_mm, 0);
+        const peakMonth = yearlySummary.peak_risk_month || 'July';
+        const highRiskMonths = yearlySummary.high_risk_months || [];
+
         appState.charts.yearly = new Chart(ctxYearly, {
             type: 'bar',
             data: {
                 labels: months.map(m => m.month_name.substring(0, 3)),
-                datasets: [{
-                    label: 'Expected Rainfall (mm)',
-                    data: months.map(m => m.expected_rainfall_mm),
-                    backgroundColor: months.map(m => {
-                        // High probability = Red (0), Low = Green (120)
-                        const prob = m.flood_probability || 0;
-                        const hue = ((1 - prob) * 120).toFixed(0);
-                        return `hsla(${hue}, 70%, 50%, 0.6)`;
-                    }),
-                    borderColor: 'rgba(255,255,255,0.1)',
-                    borderWidth: 1
-                }]
+                datasets: [
+                    {
+                        label: 'Expected Rainfall (mm)',
+                        data: months.map(m => m.expected_rainfall_mm),
+                        backgroundColor: months.map(m => {
+                            // Color based on risk level
+                            const risk = m.risk_level || 'low';
+                            if (risk === 'extreme') return 'rgba(239, 68, 68, 0.8)';
+                            if (risk === 'high') return 'rgba(249, 115, 22, 0.8)';
+                            if (risk === 'medium') return 'rgba(234, 179, 8, 0.7)';
+                            return 'rgba(34, 197, 94, 0.6)';
+                        }),
+                        borderColor: months.map(m => {
+                            const risk = m.risk_level || 'low';
+                            if (risk === 'extreme') return '#ef4444';
+                            if (risk === 'high') return '#f97316';
+                            if (risk === 'medium') return '#eab308';
+                            return '#22c55e';
+                        }),
+                        borderWidth: 2,
+                        borderRadius: 4,
+                        order: 2
+                    },
+                    {
+                        label: 'Flood Probability %',
+                        data: months.map(m => (m.flood_probability || 0) * 100),
+                        type: 'line',
+                        borderColor: '#06b6d4',
+                        backgroundColor: 'rgba(6, 182, 212, 0.1)',
+                        borderWidth: 2,
+                        pointRadius: 4,
+                        pointBackgroundColor: months.map(m => {
+                            const prob = m.flood_probability || 0;
+                            if (prob > 0.7) return '#ef4444';
+                            if (prob > 0.4) return '#f97316';
+                            return '#06b6d4';
+                        }),
+                        tension: 0.3,
+                        fill: true,
+                        yAxisID: 'y1',
+                        order: 1
+                    }
+                ]
             },
             options: {
-                responsive: true, maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
+                responsive: true, 
+                maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false
+                },
+                plugins: { 
+                    legend: { 
+                        display: true,
+                        position: 'top',
+                        labels: {
+                            color: 'rgba(255,255,255,0.7)',
+                            font: { size: 9 },
+                            boxWidth: 12,
+                            padding: 8
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                        titleColor: '#fff',
+                        bodyColor: 'rgba(255,255,255,0.8)',
+                        borderColor: 'rgba(255,255,255,0.1)',
+                        borderWidth: 1,
+                        padding: 10,
+                        callbacks: {
+                            title: (items) => {
+                                const month = months[items[0].dataIndex];
+                                const season = month?.season ? month.season.replace('_', ' ').toUpperCase() : '';
+                                return `${month?.month_name || ''} ${season ? '- ' + season : ''}`;
+                            },
+                            afterBody: (items) => {
+                                const month = months[items[0].dataIndex];
+                                if (!month) return [];
+                                const lines = [];
+                                lines.push(`Risk Level: ${(month.risk_level || 'low').toUpperCase()}`);
+                                lines.push(`High Risk Days: ${month.high_risk_days || 0}`);
+                                if (month.alerts && month.alerts.length > 0) {
+                                    lines.push(`⚠️ ${month.alerts[0].message}`);
+                                }
+                                return lines;
+                            }
+                        }
+                    }
+                },
                 scales: {
                     y: {
                         display: true,
                         beginAtZero: true,
+                        position: 'left',
+                        title: {
+                            display: true,
+                            text: 'Rainfall (mm)',
+                            color: 'rgba(255,255,255,0.5)',
+                            font: { size: 9 }
+                        },
                         grid: { color: 'rgba(255,255,255,0.05)' },
                         ticks: { color: 'rgba(255,255,255,0.5)', font: { size: 9 } }
+                    },
+                    y1: {
+                        display: true,
+                        beginAtZero: true,
+                        max: 100,
+                        position: 'right',
+                        title: {
+                            display: true,
+                            text: 'Flood Prob %',
+                            color: 'rgba(6, 182, 212, 0.7)',
+                            font: { size: 9 }
+                        },
+                        grid: { display: false },
+                        ticks: { 
+                            color: 'rgba(6, 182, 212, 0.7)', 
+                            font: { size: 9 },
+                            callback: (val) => val + '%'
+                        }
                     },
                     x: {
                         display: true,
                         grid: { display: false },
-                        ticks: { color: 'rgba(255,255,255,0.5)', font: { size: 9 } }
+                        ticks: { 
+                            color: 'rgba(255,255,255,0.5)', 
+                            font: { size: 9 },
+                            callback: function(val, index) {
+                                const month = months[index];
+                                // Highlight peak risk month
+                                if (month.month_name === peakMonth) {
+                                    return '⚠️' + month.month_name.substring(0, 3);
+                                }
+                                return month.month_name.substring(0, 3);
+                            }
+                        }
                     }
                 }
             }
@@ -1544,15 +1671,21 @@ function createToastContainer() {
  */
 function toggleRescueMode() {
     appState.rescueMode = !appState.rescueMode;
-    const btn = document.getElementById('btnRescueMode');
+    // Support both navbar button and layer overlay button
+    const btnNavbar = document.getElementById('btnRescueMode');
+    const btnLayer = document.getElementById('btnFindRescue');
 
     if (appState.rescueMode) {
-        if (btn) {
-            btn.classList.add('active');
-            btn.innerHTML = '⛑️ RESCUE MODE ON';
-            btn.style.background = 'rgba(239, 68, 68, 0.3)';
-            btn.style.borderColor = '#ef4444';
-        }
+        // Activate both buttons if they exist
+        [btnNavbar, btnLayer].forEach(btn => {
+            if (btn) {
+                btn.classList.add('active');
+                btn.style.background = 'rgba(239, 68, 68, 0.3)';
+                btn.style.borderColor = '#ef4444';
+            }
+        });
+        if (btnNavbar) btnNavbar.innerHTML = '⛑️ RESCUE MODE ON';
+        if (btnLayer) btnLayer.innerHTML = '<span class="layer-icon">🛟</span> CLICK MAP TO SET LOCATION';
 
         // Change cursor
         if (appState.map) {
@@ -1564,12 +1697,16 @@ function toggleRescueMode() {
         // Add map click handler
         appState.map.on('click', handleRescueClick);
     } else {
-        if (btn) {
-            btn.classList.remove('active');
-            btn.innerHTML = '⛑️ RESCUE ME';
-            btn.style.background = '';
-            btn.style.borderColor = '';
-        }
+        // Deactivate both buttons
+        [btnNavbar, btnLayer].forEach(btn => {
+            if (btn) {
+                btn.classList.remove('active');
+                btn.style.background = '';
+                btn.style.borderColor = '';
+            }
+        });
+        if (btnNavbar) btnNavbar.innerHTML = '⛑️ RESCUE ME';
+        if (btnLayer) btnLayer.innerHTML = '<span class="layer-icon">🛟</span> Find Best Rescue Path';
 
         if (appState.map) {
             appState.map.getCanvas().style.cursor = '';
@@ -2291,7 +2428,7 @@ function generateFloodGrid(center, intensity, locationId = 'wayanad') {
 
 /**
  * Enhanced Deep Scan with city-specific insights
- * Shows terrain-aware elevation, location-specific risk factors, and evacuation advice
+ * Shows terrain-aware elevation, location-specific risk factors, population at risk, and evacuation advice
  */
 function handleDeepScan(feature, lngLat) {
     const inspector = document.getElementById('cellInspector');
@@ -2326,6 +2463,9 @@ function handleDeepScan(feature, lngLat) {
         (riskLevel === 'high' ? '#f97316' :
             (riskLevel === 'medium' ? '#eab308' : '#22c55e'));
 
+    // Calculate population at risk for this tile
+    const popAtRisk = calculatePopulationAtRisk(lngLat, riskLevel, depth);
+
     const safeUpdate = (id, val) => {
         const el = document.getElementById(id);
         if (el) el.textContent = val;
@@ -2334,6 +2474,17 @@ function handleDeepScan(feature, lngLat) {
     // Update standard Deep Scan values
     safeUpdate('inspectElev', `${Math.round(elevation)}m`);
     safeUpdate('inspectDepth', `${parseFloat(depth).toFixed(1)}mm`);
+    safeUpdate('inspectPopAtRisk', popAtRisk.count > 0 ? popAtRisk.count.toLocaleString() : '0');
+    safeUpdate('inspectDensity', popAtRisk.density);
+
+    // Color the population at risk based on count
+    const popEl = document.getElementById('inspectPopAtRisk');
+    if (popEl) {
+        if (popAtRisk.count > 500) popEl.style.color = '#ef4444';
+        else if (popAtRisk.count > 200) popEl.style.color = '#f97316';
+        else if (popAtRisk.count > 50) popEl.style.color = '#eab308';
+        else popEl.style.color = '#22c55e';
+    }
 
     const riskEl = document.getElementById('inspectRisk');
     if (riskEl) {
@@ -2359,7 +2510,8 @@ function handleDeepScan(feature, lngLat) {
 
     const evacuationEl = document.getElementById('inspectEvacuation');
     if (evacuationEl && (riskLevel === 'high' || riskLevel === 'extreme')) {
-        evacuationEl.textContent = config.evacuationAdvice;
+        const urgency = popAtRisk.count > 200 ? 'URGENT: ' : '';
+        evacuationEl.textContent = `${urgency}${config.evacuationAdvice}${popAtRisk.count > 100 ? ` Est. ${popAtRisk.count} people need evacuation.` : ''}`;
         evacuationEl.style.display = 'block';
     } else if (evacuationEl) {
         evacuationEl.style.display = 'none';
@@ -2402,6 +2554,64 @@ function handleDeepScan(feature, lngLat) {
             appState.map.setLayoutProperty('scan-highlight-layer', 'visibility', 'visible');
         }
     }
+}
+
+/**
+ * Calculate population at risk for a given tile location
+ * Uses the population heatmap data from the API
+ */
+function calculatePopulationAtRisk(lngLat, riskLevel, depth) {
+    const result = { count: 0, density: 'LOW' };
+    
+    // Get population data from API response
+    const popData = appState.apiData?.populationHeatmap;
+    if (!popData || !popData.features) {
+        // Fallback estimation based on location and risk
+        const riskMultiplier = { 'extreme': 1.0, 'high': 0.7, 'medium': 0.4, 'low': 0.1, 'safe': 0 };
+        const basePopPerTile = 150; // Average population per tile
+        const multiplier = riskMultiplier[riskLevel.toLowerCase()] || 0;
+        result.count = Math.round(basePopPerTile * multiplier * (1 + depth / 100));
+        result.density = multiplier > 0.6 ? 'HIGH' : (multiplier > 0.3 ? 'MEDIUM' : 'LOW');
+        return result;
+    }
+    
+    // Define tile bounds (approximate 500m x 500m tile)
+    const tileSize = 0.005; // ~500m in degrees
+    const minLng = lngLat.lng - tileSize / 2;
+    const maxLng = lngLat.lng + tileSize / 2;
+    const minLat = lngLat.lat - tileSize / 2;
+    const maxLat = lngLat.lat + tileSize / 2;
+    
+    // Count population points within tile and sum intensities
+    let totalIntensity = 0;
+    let pointsInTile = 0;
+    
+    popData.features.forEach(feature => {
+        const coords = feature.geometry.coordinates;
+        if (coords[0] >= minLng && coords[0] <= maxLng && 
+            coords[1] >= minLat && coords[1] <= maxLat) {
+            pointsInTile++;
+            totalIntensity += feature.properties.intensity || 0.5;
+        }
+    });
+    
+    // Calculate estimated population based on village total and point density
+    const metadata = popData.metadata || {};
+    const totalPop = metadata.estimated_population || 15000;
+    const totalPoints = popData.features.length || 600;
+    const popPerPoint = totalPop / totalPoints;
+    
+    // Population at risk = points in tile * pop per point * intensity * risk factor
+    const riskFactor = { 'extreme': 1.0, 'high': 0.8, 'medium': 0.5, 'low': 0.2, 'safe': 0 };
+    const factor = riskFactor[riskLevel.toLowerCase()] || 0;
+    
+    if (pointsInTile > 0) {
+        const avgIntensity = totalIntensity / pointsInTile;
+        result.count = Math.round(pointsInTile * popPerPoint * avgIntensity * factor);
+        result.density = avgIntensity > 0.7 ? 'HIGH' : (avgIntensity > 0.4 ? 'MEDIUM' : 'LOW');
+    }
+    
+    return result;
 }
 
 // Initialize when DOM is ready
