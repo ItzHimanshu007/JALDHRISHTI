@@ -604,240 +604,336 @@
                     <p>Local depressions (sinks) in the DEM are filled using an iterative algorithm to ensure continuous
                         flow paths.</p>
                 </div>
+
+                <div style="margin-top: 1.5rem; text-align: center;">
+                    <img src="assets/graphs/d8_flow.png" alt="D8 Flow Direction"
+                        style="max-width: 100%; border-radius: 8px; border: 1px solid var(--border-subtle);">
+                    <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem;">Automated D8 Vector
+                        Field Analysis for Hydrological Routing</p>
+                </div>
             </div>
         </div>
 
         <!-- Hydrological Model -->
-        <div class="section">
-            <h2 class="section-title">Hydrological Water Balance Model</h2>
+        <div class="card">
+            <h3>Core Equations</h3>
+            <p>The water balance model calculates surface runoff based on rainfall input, infiltration, and terrain
+                characteristics. Our implementation uses a modified <strong>SCS Curve Number</strong> inspired approach
+                for rural Indian landscapes:</p>
 
-            <div class="card">
-                <h3>Core Equations</h3>
-                <p>The water balance model calculates surface runoff based on rainfall input, infiltration, and terrain
-                    characteristics:</p>
-
-                <div class="formula">
-                    <strong>Infiltration:</strong> I = C_land × R × (1 - saturation)
-                    <div class="comment">Where C_land = infiltration coefficient, R = rainfall, saturation = soil
-                        saturation level</div>
-                </div>
-
-                <div class="formula">
-                    <strong>Surface Runoff:</strong> Q = R - I
-                    <div class="comment">Where Q = surface runoff (mm), R = rainfall (mm), I = infiltration (mm)</div>
-                </div>
-
-                <div class="formula">
-                    <strong>Water Depth:</strong> D = (Q × A_upstream) / A_cell
-                    <div class="comment">Slope constraint applied: water depth reduced on slopes > 15°</div>
-                </div>
+            <div class="formula">
+                <strong>Infiltration:</strong> I = C_land × R × (1 - S_ratio) × K_village
+                <div class="comment">Where C_land = base infiltration coefficient, R = rainfall, S_ratio = current soil
+                    saturation, K_village = terrain-specific modifier</div>
             </div>
 
-            <div class="card">
-                <h3>Time Simulation</h3>
-                <p>The model simulates flood progression with snapshots at 4 time steps, allowing visualization of how
-                    risk evolves:</p>
+            <div class="formula">
+                <strong>Surface Runoff:</strong> Q = max(0, R - I) × Runoff_Multiplier
+                <div class="comment">Where Runoff_Multiplier varies by terrain type (High for Wayanad, Low for Darbhanga
+                    plains)</div>
+            </div>
 
-                <div class="grid-2">
-                    <div class="data-box">
-                        <h4>Simulation Timeline</h4>
-                        <div class="data-row"><span class="label">T = 0h</span><span class="value">Initial state</span>
-                        </div>
-                        <div class="data-row"><span class="label">T = 6h</span><span class="value">Early
-                                accumulation</span></div>
-                        <div class="data-row"><span class="label">T = 12h</span><span class="value">Peak
-                                intensity</span></div>
-                        <div class="data-row"><span class="label">T = 24h</span><span class="value">Full event</span>
-                        </div>
-                    </div>
-                    <div class="data-box">
-                        <h4>Infiltration Coefficients</h4>
-                        <div class="data-row"><span class="label">Forest</span><span class="value">0.80</span></div>
-                        <div class="data-row"><span class="label">Agriculture</span><span class="value">0.65</span>
-                        </div>
-                        <div class="data-row"><span class="label">Bare Ground</span><span class="value">0.45</span>
-                        </div>
-                        <div class="data-row"><span class="label">Built-up</span><span class="value">0.15</span></div>
-                    </div>
+            <div class="formula">
+                <strong>Water Depth (Synthetic):</strong> D = (Q × Flow_Acc) ^ 0.7 + Noise_Field
+                <div class="comment">Non-linear scaling applied to simulate realistic accumulation in depressions</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Village-Specific Flood Dynamics</h3>
+            <p>Jal Drishti 2.0 uses specialized algorithms for different topographical zones:</p>
+            <div class="grid-2">
+                <div class="data-box">
+                    <h4>Hilly (Wayanad)</h4>
+                    <p style="font-size: 0.8rem; color: var(--text-secondary);">Focuses on <strong>Flash Flood</strong>
+                        corridors. Uses steep gravitational potential to simulate rapid water concentration in narrow
+                        valley floors.</p>
+                </div>
+                <div class="data-box">
+                    <h4>Riverine (Darbhanga)</h4>
+                    <p style="font-size: 0.8rem; color: var(--text-secondary);">Simulates <strong>Embankment
+                            Breaches</strong>. Models linear channel overflow with "tongues" of water extending into the
+                        plains.</p>
+                </div>
+                <div class="data-box">
+                    <h4>Floodplain (Dhemaji)</h4>
+                    <p style="font-size: 0.8rem; color: var(--text-secondary);">Models <strong>Braided River
+                            Swell</strong>. Focuses on wide-area sheet flooding where multiple tributaries converge on
+                        flat terrain.</p>
                 </div>
             </div>
         </div>
 
-        <!-- Risk Classification -->
-        <div class="section">
-            <h2 class="section-title">Multi-Criteria Risk Classification</h2>
+        <div class="card">
+            <h3>Time Simulation</h3>
+            <p>The model simulates flood progression with snapshots at 4 time steps, allowing visualization of how
+                risk evolves:</p>
 
-            <div class="card">
-                <h3>Weighted Risk Formula</h3>
-                <p>Risk is calculated by combining multiple normalized factors with predetermined weights:</p>
-
-                <div class="formula">
-                    Risk Score = Σ(weight_i × factor_i)
-                </div>
-
-                <div class="weight-item">
-                    <span class="weight-label">Water Depth</span>
-                    <div class="weight-bar-container">
-                        <div class="weight-bar" style="width: 40%;"></div>
+            <div class="grid-2">
+                <div class="data-box">
+                    <h4>Simulation Timeline</h4>
+                    <div class="data-row"><span class="label">T = 0h</span><span class="value">Initial state</span>
                     </div>
-                    <span class="weight-value">40%</span>
-                </div>
-                <div class="weight-item">
-                    <span class="weight-label">Slope (inverted)</span>
-                    <div class="weight-bar-container">
-                        <div class="weight-bar" style="width: 25%;"></div>
+                    <div class="data-row"><span class="label">T = 6h</span><span class="value">Early
+                            accumulation</span></div>
+                    <div class="data-row"><span class="label">T = 12h</span><span class="value">Peak
+                            intensity</span></div>
+                    <div class="data-row"><span class="label">T = 24h</span><span class="value">Full event</span>
                     </div>
-                    <span class="weight-value">25%</span>
                 </div>
-                <div class="weight-item">
-                    <span class="weight-label">Flow Accumulation</span>
-                    <div class="weight-bar-container">
-                        <div class="weight-bar" style="width: 25%;"></div>
+                <div class="data-box">
+                    <h4>Infiltration Coefficients</h4>
+                    <div class="data-row"><span class="label">Forest</span><span class="value">0.80</span></div>
+                    <div class="data-row"><span class="label">Agriculture</span><span class="value">0.65</span>
                     </div>
-                    <span class="weight-value">25%</span>
-                </div>
-                <div class="weight-item">
-                    <span class="weight-label">Habitation Proximity</span>
-                    <div class="weight-bar-container">
-                        <div class="weight-bar" style="width: 10%;"></div>
+                    <div class="data-row"><span class="label">Bare Ground</span><span class="value">0.45</span>
                     </div>
-                    <span class="weight-value">10%</span>
-                </div>
-
-                <div class="alert info" style="margin-top: 1.5rem;">
-                    <strong>Slope Logic:</strong>
-                    <p>Slope risk is <em>inverted</em>—flat areas (low slope) have higher flood risk because water
-                        accumulates instead of draining naturally.</p>
+                    <div class="data-row"><span class="label">Built-up</span><span class="value">0.15</span></div>
                 </div>
             </div>
 
-            <div class="card">
-                <h3>Risk Classification Levels</h3>
-                <div class="risk-levels">
-                    <div class="risk-level extreme">
-                        <h4>Extreme Risk</h4>
-                        <p>Score ≥ 0.90</p>
-                    </div>
-                    <div class="risk-level high">
-                        <h4>High Risk</h4>
-                        <p>Score 0.80 – 0.90</p>
-                    </div>
-                    <div class="risk-level medium">
-                        <h4>Medium Risk</h4>
-                        <p>Score 0.60 – 0.80</p>
-                    </div>
-                    <div class="risk-level low">
-                        <h4>Low Risk</h4>
-                        <p>Score < 0.60</p>
-                    </div>
+            <div style="margin-top: 1.5rem; text-align: center;">
+                <img src="assets/graphs/simulation_timeline.png" alt="Simulation Timeline"
+                    style="max-width: 100%; border-radius: 8px; border: 1px solid var(--border-subtle);">
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem;">Multi-Step Temporal
+                    Flood Propagation Simulation results</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Risk Classification -->
+    <div class="section">
+        <h2 class="section-title">Multi-Criteria Risk Classification</h2>
+
+        <div class="card">
+            <h3>Weighted Risk Formula</h3>
+            <p>Risk is calculated by combining multiple normalized factors with predetermined weights:</p>
+
+            <div class="formula">
+                Risk Score = Σ(weight_i × factor_i)
+            </div>
+
+            <div class="weight-item">
+                <span class="weight-label">Water Depth</span>
+                <div class="weight-bar-container">
+                    <div class="weight-bar" style="width: 40%;"></div>
                 </div>
+                <span class="weight-value">40%</span>
+            </div>
+            <div class="weight-item">
+                <span class="weight-label">Slope (inverted)</span>
+                <div class="weight-bar-container">
+                    <div class="weight-bar" style="width: 25%;"></div>
+                </div>
+                <span class="weight-value">25%</span>
+            </div>
+            <div class="weight-item">
+                <span class="weight-label">Flow Accumulation</span>
+                <div class="weight-bar-container">
+                    <div class="weight-bar" style="width: 25%;"></div>
+                </div>
+                <span class="weight-value">25%</span>
+            </div>
+            <div class="weight-item">
+                <span class="weight-label">Habitation Proximity</span>
+                <div class="weight-bar-container">
+                    <div class="weight-bar" style="width: 10%;"></div>
+                </div>
+                <span class="weight-value">10%</span>
+            </div>
+
+            <div class="alert info" style="margin-top: 1.5rem;">
+                <strong>Slope Logic:</strong>
+                <p>Slope risk is <em>inverted</em>—flat areas (low slope) have higher flood risk because water
+                    accumulates instead of draining naturally.</p>
             </div>
         </div>
 
-        <!-- ML Components -->
-        <div class="section">
-            <h2 class="section-title">Machine Learning Components</h2>
+        <div class="card">
+            <h3>Risk Classification Levels</h3>
+            <div class="risk-levels">
+                <div class="risk-level extreme">
+                    <h4>Extreme Risk</h4>
+                    <p>Score ≥ 0.90</p>
+                </div>
+                <div class="risk-level high">
+                    <h4>High Risk</h4>
+                    <p>Score 0.80 – 0.90</p>
+                </div>
+                <div class="risk-level medium">
+                    <h4>Medium Risk</h4>
+                    <p>Score 0.60 – 0.80</p>
+                </div>
+                <div class="risk-level low">
+                    <h4>Low Risk</h4>
+                    <p>Score < 0.60</p>
+                </div>
+            </div>
+        </div>
+    </div>
 
-            <div class="card">
-                <h3>LSTM Flood Predictor</h3>
-                <p>A Bidirectional LSTM neural network provides 7-day flood probability forecasts based on 30 days of
-                    historical data.</p>
+    <!-- ML Components -->
+    <div class="section">
+        <h2 class="section-title">Machine Learning Components</h2>
 
-                <div class="grid-2">
-                    <div class="data-box">
-                        <h4>Model Architecture</h4>
-                        <div class="data-row"><span class="label">Input Sequence</span><span class="value">30
-                                days</span></div>
-                        <div class="data-row"><span class="label">Forecast Horizon</span><span class="value">7
-                                days</span></div>
-                        <div class="data-row"><span class="label">Hidden Units</span><span class="value">64</span></div>
-                        <div class="data-row"><span class="label">Dropout</span><span class="value">0.2</span></div>
+        <div class="card">
+            <h3>LSTM Flood Predictor</h3>
+            <p>A Bidirectional LSTM neural network provides 7-day flood probability forecasts based on 30 days of
+                historical data.</p>
+
+            <div class="grid-2">
+                <div class="data-box">
+                    <h4>Model Architecture</h4>
+                    <div class="data-row"><span class="label">Input Sequence</span><span class="value">30
+                            days</span></div>
+                    <div class="data-row"><span class="label">Forecast Horizon</span><span class="value">7
+                            days</span></div>
+                    <div class="data-row"><span class="label">Hidden Units</span><span class="value">64</span></div>
+                    <div class="data-row"><span class="label">Dropout</span><span class="value">0.2</span></div>
+                </div>
+                <div class="data-box">
+                    <h4>Input Features</h4>
+                    <div class="data-row"><span class="label">Daily rainfall</span><span class="value">✓</span>
                     </div>
-                    <div class="data-box">
-                        <h4>Input Features</h4>
-                        <div class="data-row"><span class="label">Daily rainfall</span><span class="value">✓</span>
-                        </div>
-                        <div class="data-row"><span class="label">3-day cumulative</span><span class="value">✓</span>
-                        </div>
-                        <div class="data-row"><span class="label">7-day cumulative</span><span class="value">✓</span>
-                        </div>
-                        <div class="data-row"><span class="label">Soil moisture</span><span class="value">✓</span></div>
+                    <div class="data-row"><span class="label">3-day cumulative</span><span class="value">✓</span>
                     </div>
+                    <div class="data-row"><span class="label">7-day cumulative</span><span class="value">✓</span>
+                    </div>
+                    <div class="data-row"><span class="label">Soil moisture</span><span class="value">✓</span></div>
                 </div>
             </div>
 
-            <div class="card">
-                <h3>XGBoost Risk Scorer</h3>
-                <p>A gradient boosting model provides seasonal risk assessment using terrain, climate, and historical
-                    flood features.</p>
-
-                <ol class="pipeline">
-                    <li><strong>Feature Extraction:</strong> Terrain stats, rainfall patterns, building density,
-                        historical floods</li>
-                    <li><strong>Seasonal Modeling:</strong> Monsoon multiplier applied (2.0× during June–September)</li>
-                    <li><strong>Calendar Generation:</strong> Monthly risk predictions for yearly planning</li>
-                </ol>
+            <div style="margin-top: 1.5rem; text-align: center;">
+                <img src="assets/graphs/model_performance.png" alt="Model Performance"
+                    style="max-width: 100%; border-radius: 8px; border: 1px solid var(--border-subtle);">
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem;">XGBoost Risk Scorer:
+                    Accuracy Calibration and Regional Validation Curve</p>
             </div>
         </div>
 
-        <!-- Alert Thresholds -->
-        <div class="section">
-            <h2 class="section-title">Alert Thresholds (IMD Standards)</h2>
+        <div class="card">
+            <h3>XGBoost Risk Scorer</h3>
+            <p>A gradient boosting model provides seasonal risk assessment using terrain, climate, and historical
+                flood features.</p>
 
-            <div class="card">
-                <p>Alert levels follow India Meteorological Department (IMD) guidelines for rainfall intensity:</p>
+            <ol class="pipeline">
+                <li><strong>Feature Extraction:</strong> Terrain stats, rainfall patterns, building density,
+                    historical floods</li>
+                <li><strong>Seasonal Modeling:</strong> Monsoon multiplier applied (2.0× during June–September)</li>
+                <li><strong>Calendar Generation:</strong> Monthly risk predictions for yearly planning</li>
+            </ol>
+        </div>
+    </div>
 
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>Alert Level</th>
-                            <th>Rainfall (24h)</th>
-                            <th>IMD Category</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td style="color: #eab308;">● Yellow</td>
-                            <td>≥ 64.5 mm</td>
-                            <td>Heavy Rainfall</td>
-                        </tr>
-                        <tr>
-                            <td style="color: #f97316;">● Orange</td>
-                            <td>≥ 115.5 mm</td>
-                            <td>Very Heavy Rainfall</td>
-                        </tr>
-                        <tr>
-                            <td style="color: #ef4444;">● Red</td>
-                            <td>≥ 204.5 mm</td>
-                            <td>Extremely Heavy Rainfall</td>
-                        </tr>
-                    </tbody>
-                </table>
+    <!-- Alert Thresholds -->
+    <div class="section">
+        <h2 class="section-title">Alert Thresholds (IMD Standards)</h2>
+
+        <div class="card">
+            <p>Alert levels follow India Meteorological Department (IMD) guidelines for rainfall intensity:</p>
+
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Alert Level</th>
+                        <th>Rainfall (24h)</th>
+                        <th>IMD Category</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="color: #eab308;">● Yellow</td>
+                        <td>≥ 64.5 mm</td>
+                        <td>Heavy Rainfall</td>
+                    </tr>
+                    <tr>
+                        <td style="color: #f97316;">● Orange</td>
+                        <td>≥ 115.5 mm</td>
+                        <td>Very Heavy Rainfall</td>
+                    </tr>
+                    <tr>
+                        <td style="color: #ef4444;">● Red</td>
+                        <td>≥ 204.5 mm</td>
+                        <td>Extremely Heavy Rainfall</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Model Execution Workflow -->
+    <div class="section">
+        <h2 class="section-title">Model Execution Workflow</h2>
+
+        <div class="card">
+            <h3>Jupyter-Based Development Cycle</h3>
+            <p>All core models undergo an iterative development and testing phase within Jupyter notebooks before
+                being optimized for high-performance Python production deployment.</p>
+
+            <div class="alert info">
+                <strong>Experimental Phase:</strong>
+                <p>Models are prototyped in Jupyter to visualize gradients, verify hydrological consistency, and
+                    adjust hyperparameters through interactive plotting.</p>
+            </div>
+
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Module</th>
+                        <th>Python Implementation</th>
+                        <th>Notebook Optimization</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Simulation</strong></td>
+                        <td><code>simulation.py</code> (FastAPI)</td>
+                        <td>Runoff & Accumulation tuning</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Risk Engine</strong></td>
+                        <td><code>routing.py</code> (A* Algorithm)</td>
+                        <td>Penalty weighting for flood depth</td>
+                    </tr>
+                    <tr>
+                        <td><strong>ML Forecasting</strong></td>
+                        <td><code>generators.py</code> (Synthetic)</td>
+                        <td>Cluster intensity & geometry calibration</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div style="margin-top: 1.5rem; text-align: center;">
+                <img src="assets/graphs/population_heatmap_static.png" alt="Population Analysis"
+                    style="max-width: 100%; border-radius: 8px; border: 1px solid var(--border-subtle);">
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem;">Spatial Population
+                    Vulnerability Analysis: Notebook-driven Gaussian Clustering</p>
             </div>
         </div>
+    </div>
 
-        <!-- Limitations -->
-        <div class="section">
-            <h2 class="section-title">Limitations & Future Work</h2>
+    <!-- Limitations -->
+    <div class="section">
+        <h2 class="section-title">Limitations & Future Work</h2>
 
-            <div class="card">
-                <h3>Current Limitations</h3>
-                <ul style="color: var(--text-secondary); padding-left: 1.25rem; margin: 0.5rem 0;">
-                    <li>Does not account for existing drainage infrastructure</li>
-                    <li>Assumes uniform rainfall distribution (no spatial variation)</li>
-                    <li>Simplified infiltration model (no detailed soil data)</li>
-                    <li>Static land cover (no seasonal variation)</li>
-                </ul>
+        <div class="card">
+            <h3>Current Limitations</h3>
+            <ul style="color: var(--text-secondary); padding-left: 1.25rem; margin: 0.5rem 0;">
+                <li>Does not account for existing drainage infrastructure</li>
+                <li>Assumes uniform rainfall distribution (no spatial variation)</li>
+                <li>Simplified infiltration model (no detailed soil data)</li>
+                <li>Static land cover (no seasonal variation)</li>
+            </ul>
 
-                <h3 style="margin-top: 1.5rem;">Recommended Enhancements</h3>
-                <ul style="color: var(--text-secondary); padding-left: 1.25rem; margin: 0.5rem 0;">
-                    <li>Integration with IMD real-time rainfall forecasts</li>
-                    <li>Higher resolution DEM (5–10m) for urban areas</li>
-                    <li>Ground validation with historical flood extent data</li>
-                    <li>Dynamic hydraulic routing for large catchments</li>
-                </ul>
-            </div>
+            <h3 style="margin-top: 1.5rem;">Recommended Enhancements</h3>
+            <ul style="color: var(--text-secondary); padding-left: 1.25rem; margin: 0.5rem 0;">
+                <li>Integration with IMD real-time rainfall forecasts</li>
+                <li>Higher resolution DEM (5–10m) for urban areas</li>
+                <li>Ground validation with historical flood extent data</li>
+                <li>Dynamic hydraulic routing for large catchments</li>
+            </ul>
         </div>
+    </div>
     </div>
 
     <div class="footer">

@@ -58,15 +58,15 @@ jaldrishti/
 
 1.  **Clone the repository** (if applicable) or navigate to the project directory.
 
-2.  **Start the Local Server**:
-    The application requires a local server to fetch data files correctly (to avoid CORS issues).
+3.  **Start the Local Server**:
+    The application uses a FastAPI backend. Run it using the following command:
     ```bash
-    python3 -m http.server 8000
+    python3 -m src.main
     ```
 
-3.  **Access the Dashboard**:
+4.  **Access the Dashboard**:
     Open your web browser and go to:
-    `http://localhost:8000/dashboard`
+    `http://localhost:8001/`
 
 ## 📊 Data Sources
 

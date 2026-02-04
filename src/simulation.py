@@ -113,13 +113,7 @@ class FloodSimulator:
         
     def simulate(self, rainfall_mm: float) -> Dict[str, np.ndarray]:
         """
-        Run flood simulation for given rainfall.
-        
-        Args:
-            rainfall_mm: Rainfall amount in millimeters (0-300)
-            
-        Returns:
-            Dictionary containing water depth at each time step
+        Run flood simulation with diffusion and micro-noise.
         """
         # Calculate flow characteristics
         flow_dir = self.flow_director.calculate_flow_direction()
@@ -130,52 +124,56 @@ class FloodSimulator:
         
         # Convert rainfall to water volume per cell
         rainfall_m = rainfall_mm / 1000.0
-        water_volume = rainfall_m * cell_area_m2 * self.config.runoff_coefficient
         
-        # Initialize water depth arrays for each time step
-        results = {
-            "t1": np.zeros((rows, cols)),
-            "t2": np.zeros((rows, cols)),
-            "t3": np.zeros((rows, cols))
-        }
-        
-        # Normalize flow accumulation
-        max_flow_acc = flow_acc.max()
-        normalized_acc = flow_acc / max_flow_acc
-        
-        # Find riverbed (lowest points / highest accumulation)
-        riverbed_threshold = np.percentile(self.heightmap, 20)
-        is_riverbed = self.heightmap < riverbed_threshold
-        
-        # Time step factors (water accumulates over time)
+        # Initialize results
+        results = {}
         time_factors = {"t1": 0.3, "t2": 0.6, "t3": 1.0}
         
+        # Normalize flow accumulation
+        max_flow_acc = flow_acc.max() if flow_acc.max() > 0 else 1.0
+        normalized_acc = flow_acc / max_flow_acc
+        
+        # Riverbed weighting
+        riverbed_threshold = np.percentile(self.heightmap, 15)
+        is_riverbed = self.heightmap < riverbed_threshold
+        
+        # Terrain normalization for gravity effect
+        elev_min, elev_max = self.heightmap.min(), self.heightmap.max()
+        elev_normalized = (self.heightmap - elev_min) / (elev_max - elev_min + 1e-6)
+        elevation_factor = 1.0 - elev_normalized
+        
+        # Micro-terrain noise for edge realism
+        np.random.seed(42)
+        noise = np.random.normal(0, 0.05, (rows, cols))
+        
+        current_water = np.zeros((rows, cols))
+        
         for timestep, factor in time_factors.items():
-            # Base water level from flow accumulation
-            base_depth = normalized_acc * rainfall_m * factor * 5  # Scale factor
+            # 1. Base accumulation from rainfall and flow
+            # Higher accumulation in riverbeds and low points
+            base_surge = normalized_acc * rainfall_m * factor * 8 
+            river_surge = np.where(is_riverbed, rainfall_m * factor * 3, 0)
             
-            # Extra depth in riverbed (water collects here)
-            riverbed_bonus = np.where(is_riverbed, rainfall_m * factor * 2, 0)
+            # Combine and add noise
+            new_depth = (base_surge + river_surge) * (0.8 + elevation_factor * 1.2)
+            new_depth += noise * rainfall_m
             
-            # Calculate breach and flooding
-            water_depth = base_depth + riverbed_bonus
+            # 2. Diffusion step (Simulate lateral flattening)
+            # Simple 4-neighbor smoothing to mimic gravity leveling
+            for _ in range(3): # 3 iterations of diffusion
+                smoothed = new_depth.copy()
+                # North
+                smoothed[1:, :] += new_depth[:-1, :] * 0.1
+                # South 
+                smoothed[:-1, :] += new_depth[1:, :] * 0.1
+                # East
+                smoothed[:, 1:] += new_depth[:, :-1] * 0.1
+                # West
+                smoothed[:, :-1] += new_depth[:, 1:] * 0.1
+                new_depth = (smoothed / 1.4) # Normalize
             
-            # Apply elevation-based flooding
-            # Lower areas get more water (gravity)
-            elev_normalized = (self.heightmap - self.heightmap.min()) / \
-                            (self.heightmap.max() - self.heightmap.min())
-            
-            # Inverse: lower elevation = more water accumulation
-            elevation_factor = 1.0 - elev_normalized
-            water_depth *= (0.5 + elevation_factor * 1.5)
-            
-            # Scale by rainfall intensity
-            intensity_factor = rainfall_mm / 150.0  # Normalized to 150mm baseline
-            water_depth *= np.clip(intensity_factor, 0.1, 3.0)
-            
-            # Clip to realistic depths
-            water_depth = np.clip(water_depth, 0, 5.0)  # Max 5m depth
-            
+            # Clip and store
+            water_depth = np.clip(new_depth, 0, 5.0)
             results[timestep] = water_depth
         
         self.water_depth = results

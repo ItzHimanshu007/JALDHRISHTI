@@ -91,7 +91,7 @@ def initialize_data(village_id: str = "wayanad_meppadi", force: bool = False):
     config = get_terrain_config(village_id)
     
     # Generate terrain
-    terrain = ValleyTerrainGenerator(config)
+    terrain = ValleyTerrainGenerator(config, village_id=village_id)
     heightmap = terrain.generate_heightmap()
     terrain.calculate_slope()
     
@@ -411,4 +411,5 @@ else:
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8001, reload=True)
+    # Use string reference for reload to work
+    uvicorn.run("src.main:app", host="0.0.0.0", port=8001, reload=True)

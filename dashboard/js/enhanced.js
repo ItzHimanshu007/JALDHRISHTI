@@ -241,7 +241,7 @@ async function fetchLiveWeather(lat, lon) {
                     weatherCodes: data.daily.weathercode || [],
                     fetchedAt: new Date().toISOString()
                 };
-                
+
                 // Update short-term chart with real data
                 renderShortTermForecast();
             }
@@ -404,7 +404,7 @@ function init3DMap() {
         }
     }, 4000);
 
-    appState.map.on('load', () => {
+    appState.map.on('load', async () => {
         clearTimeout(mapTimer);
         initLayers();
         hideLoading();
@@ -419,6 +419,12 @@ function init3DMap() {
         }
         if (appState.apiData.population) {
             renderAPIPopulation();
+        }
+
+        // Fetch and show initial flood simulation
+        await fetchFloodSimulation();
+        if (appState.data && appState.data.villages) {
+            updateMapVision(appState.data.villages[appState.currentVillageId]);
         }
 
         console.log('✓ Map fully loaded with API layers');
@@ -551,7 +557,7 @@ function syncUI() {
     const terrainType = village.info.terrain_type || '';
     const isHilly = terrainType.includes('hilly') || terrainType.includes('ghats') || terrainType.includes('mountain');
     const isRiverine = terrainType.includes('plain') || terrainType.includes('flood') || terrainType.includes('river');
-    
+
     // Terrain Analysis
     let terrainStatus = 'STABLE';
     let terrainColor = '#10b981';
@@ -564,18 +570,18 @@ function syncUI() {
         stabilityEl.textContent = terrainStatus;
         stabilityEl.style.color = terrainColor;
     }
-    
+
     // Flood Type
     let floodType = 'RIVERINE';
     if (isHilly) floodType = 'FLASH FLOOD';
     else if (village.info.id === 'dhemaji') floodType = 'BRAHMAPUTRA';
     else if (village.info.id === 'darbhanga') floodType = 'KOSI BASIN';
     safeUpdate('intelFocus', floodType);
-    
+
     // Impact Zone
     const impactZone = Math.round(riskArea * 1.4);
     safeUpdate('intelImpact', `${impactZone} km²`);
-    
+
     // Confidence Score
     const confidencePercent = Math.round(confidence * 100);
     const confidenceEl = document.getElementById('intelConfidence');
@@ -583,7 +589,7 @@ function syncUI() {
         confidenceEl.textContent = `${confidencePercent}%`;
         confidenceEl.style.color = confidencePercent > 90 ? '#10b981' : (confidencePercent > 80 ? '#f59e0b' : '#ef4444');
     }
-    
+
     // Model Accuracy Bar
     const accuracyValueEl = document.getElementById('modelAccuracyValue');
     const accuracyFillEl = document.getElementById('accuracyFill');
@@ -629,12 +635,12 @@ function syncUI() {
     // Update Weekly/Monthly Badges based on actual forecast data
     const forecast = appState.liveWeatherForecast;
     let weeklyStatus = 'LOADING';
-    
+
     if (forecast && forecast.precipitation) {
         const weeklyPrecip = forecast.precipitation.reduce((a, b) => a + b, 0);
         const maxDayPrecip = Math.max(...forecast.precipitation);
         const highProbDays = forecast.probability.filter(p => p > 60).length;
-        
+
         if (maxDayPrecip > 50 || weeklyPrecip > 150) {
             weeklyStatus = 'WARNING';
         } else if (maxDayPrecip > 20 || highProbDays >= 3) {
@@ -645,7 +651,7 @@ function syncUI() {
             weeklyStatus = 'STABLE';
         }
     }
-    
+
     const weeklyEl = document.getElementById('valWeekly');
     if (weeklyEl) {
         weeklyEl.textContent = weeklyStatus;
@@ -747,14 +753,14 @@ function renderEnhancedCharts(village) {
                 ]
             },
             options: {
-                responsive: true, 
+                responsive: true,
                 maintainAspectRatio: false,
                 interaction: {
                     mode: 'index',
                     intersect: false
                 },
-                plugins: { 
-                    legend: { 
+                plugins: {
+                    legend: {
                         display: true,
                         position: 'top',
                         labels: {
@@ -817,8 +823,8 @@ function renderEnhancedCharts(village) {
                             font: { size: 9 }
                         },
                         grid: { display: false },
-                        ticks: { 
-                            color: 'rgba(6, 182, 212, 0.7)', 
+                        ticks: {
+                            color: 'rgba(6, 182, 212, 0.7)',
                             font: { size: 9 },
                             callback: (val) => val + '%'
                         }
@@ -826,10 +832,10 @@ function renderEnhancedCharts(village) {
                     x: {
                         display: true,
                         grid: { display: false },
-                        ticks: { 
-                            color: 'rgba(255,255,255,0.5)', 
+                        ticks: {
+                            color: 'rgba(255,255,255,0.5)',
                             font: { size: 9 },
-                            callback: function(val, index) {
+                            callback: function (val, index) {
                                 const month = months[index];
                                 // Highlight peak risk month
                                 if (month.month_name === peakMonth) {
@@ -854,13 +860,13 @@ function renderShortTermForecast() {
 
     // Use live weather forecast data if available
     const forecast = appState.liveWeatherForecast;
-    
+
     let labels = [];
     let precipData = [];
     let probData = [];
     let tempMaxData = [];
     let tempMinData = [];
-    
+
     if (forecast && forecast.dates && forecast.dates.length > 0) {
         // Use real API data
         labels = forecast.dates.map(d => {
@@ -877,7 +883,7 @@ function renderShortTermForecast() {
         precipData = [0, 0, 0, 0, 0, 0, 0];
         probData = [0, 0, 0, 0, 0, 0, 0];
     }
-    
+
     const total = precipData.reduce((a, b) => a + b, 0).toFixed(1);
     const maxPrecip = Math.max(...precipData);
     const highRiskDays = precipData.filter(p => p > 20).length;
@@ -927,14 +933,14 @@ function renderShortTermForecast() {
             ]
         },
         options: {
-            responsive: true, 
+            responsive: true,
             maintainAspectRatio: false,
             interaction: {
                 mode: 'index',
                 intersect: false
             },
-            plugins: { 
-                legend: { 
+            plugins: {
+                legend: {
                     display: true,
                     position: 'top',
                     labels: {
@@ -955,10 +961,10 @@ function renderShortTermForecast() {
                         title: (items) => {
                             if (forecast && forecast.dates) {
                                 const date = new Date(forecast.dates[items[0].dataIndex]);
-                                return date.toLocaleDateString('en-US', { 
-                                    weekday: 'long', 
-                                    month: 'short', 
-                                    day: 'numeric' 
+                                return date.toLocaleDateString('en-US', {
+                                    weekday: 'long',
+                                    month: 'short',
+                                    day: 'numeric'
                                 });
                             }
                             return items[0].label;
@@ -980,8 +986,8 @@ function renderShortTermForecast() {
                 }
             },
             scales: {
-                y: { 
-                    beginAtZero: true, 
+                y: {
+                    beginAtZero: true,
                     position: 'left',
                     title: {
                         display: true,
@@ -989,8 +995,8 @@ function renderShortTermForecast() {
                         color: 'rgba(255,255,255,0.4)',
                         font: { size: 8 }
                     },
-                    grid: { color: 'rgba(255,255,255,0.05)' }, 
-                    ticks: { color: 'rgba(255,255,255,0.5)', font: { size: 8 } } 
+                    grid: { color: 'rgba(255,255,255,0.05)' },
+                    ticks: { color: 'rgba(255,255,255,0.5)', font: { size: 8 } }
                 },
                 y1: {
                     beginAtZero: true,
@@ -1003,15 +1009,15 @@ function renderShortTermForecast() {
                         font: { size: 8 }
                     },
                     grid: { display: false },
-                    ticks: { 
-                        color: 'rgba(168, 85, 247, 0.7)', 
+                    ticks: {
+                        color: 'rgba(168, 85, 247, 0.7)',
                         font: { size: 8 },
                         callback: (val) => val + '%'
                     }
                 },
-                x: { 
-                    grid: { display: false }, 
-                    ticks: { color: 'rgba(255,255,255,0.5)', font: { size: 8 } } 
+                x: {
+                    grid: { display: false },
+                    ticks: { color: 'rgba(255,255,255,0.5)', font: { size: 8 } }
                 }
             }
         }
@@ -1111,29 +1117,44 @@ function updateMapVision(village) {
                 } else {
                     // Try to load real data if available in village object
                     const geojsonKey = `geojson_${ts}`;
-                    const dataUrl = village[geojsonKey] ? `${village[geojsonKey]}` : null;
+                    const dataUrlInVillage = village[geojsonKey] ? `${village[geojsonKey]}` : null;
 
-                    if (dataUrl) {
+                    if (dataUrlInVillage) {
                         // Caching: Avoid redundant setData calls for the same URL
-                        if (source._lastUrl !== dataUrl) {
-                            source.setData(dataUrl);
-                            source._lastUrl = dataUrl;
+                        if (source._lastUrl !== dataUrlInVillage) {
+                            source.setData(dataUrlInVillage);
+                            source._lastUrl = dataUrlInVillage;
                         }
                     } else {
-                        // Fallback to synthetic
-                        const intensity = (appState.rainfallAmount / 300) * timeFactor;
-                        // Cache synthetic data by intensity bucket to prevent constant regeneration
-                        const intensityBucket = Math.round(intensity * 10) / 10;
-                        const cacheKey = `${appState.currentVillageId}_${ts}_${intensityBucket}`;
+                        // NEW: Try to load pre-generated realistic data
+                        // Closest bucket: 50, 100, 150, 200, 300, 400, 450, 600
+                        const rf = appState.rainfallAmount;
+                        let bucket = 100;
+                        if (rf > 500) bucket = 600;
+                        else if (rf > 425) bucket = 450;
+                        else if (rf > 350) bucket = 400;
+                        else if (rf > 250) bucket = 300;
+                        else if (rf > 175) bucket = 200;
+                        else if (rf > 125) bucket = 150;
+                        else if (rf > 75) bucket = 100;
+                        else bucket = 50;
 
-                        if (source._lastCacheKey !== cacheKey) {
-                            const floodData = generateFloodGrid(coords, intensity, appState.currentVillageId);
-                            console.log(`[DEBUG] Generated ${floodData.features.length} flood tiles for ${cacheKey}`);
-                            if (floodData.features.length > 0) {
-                                console.log('[DEBUG] First tile props:', floodData.features[0].properties);
-                            }
-                            source.setData(floodData);
-                            source._lastCacheKey = cacheKey;
+                        const staticUrl = `data/simulations/${appState.currentVillageId}/flood_${bucket}mm.geojson`;
+
+                        if (source._lastUrl !== staticUrl) {
+                            // First try to fetch to check if it exists (some villages don't have all buckets)
+                            fetch(staticUrl, { method: 'HEAD' }).then(res => {
+                                if (res.ok) {
+                                    source.setData(staticUrl);
+                                    source._lastUrl = staticUrl;
+                                    console.log(`[REALISM] Loaded pre-generated data: ${staticUrl}`);
+                                } else {
+                                    // Fallback to synthetic if not found
+                                    appState.fallbackToSynthetic(source, coords, timeFactor, ts);
+                                }
+                            }).catch(() => {
+                                appState.fallbackToSynthetic(source, coords, timeFactor, ts);
+                            });
                         }
                     }
                 }
@@ -1141,9 +1162,21 @@ function updateMapVision(village) {
 
             if (appState.map.getLayer(layerId)) {
                 appState.map.setLayoutProperty(layerId, 'visibility', 'visible');
-                const baseOpacity = 0.65; // Increased base visibility
-                const rainfallFactor = Math.min(1.2, Math.max(0.5, appState.rainfallAmount / 150));
+                const baseOpacity = 0.7; // Increased base visibility for realism
+                const rainfallFactor = Math.min(1.2, Math.max(0.6, appState.rainfallAmount / 200));
+
+                // Smoother opacity based on intensity
                 appState.map.setPaintProperty(layerId, 'fill-opacity', Math.min(0.9, baseOpacity * rainfallFactor));
+
+                // Add a subtle blue tint for water realism if not already set
+                appState.map.setPaintProperty(layerId, 'fill-color', [
+                    'interpolate', ['linear'], ['get', 'value'],
+                    0, 'rgba(30, 58, 138, 0.4)',   // Deep blue - low depth
+                    1, 'rgba(30, 64, 175, 0.6)',   // Medium blue
+                    2, 'rgba(29, 78, 216, 0.75)',  // Clear blue
+                    3, 'rgba(30, 58, 138, 0.85)',  // Deep navy
+                    4, 'rgba(23, 37, 84, 0.95)'    // Almost black navy
+                ]);
             }
 
             if (ts === '24h') checkRiskForVoiceAlert(village);
@@ -1188,6 +1221,21 @@ function updateMapVision(village) {
         }
     }
 }
+
+/**
+ * Internal helper for synthetic fallback with noise
+ */
+appState.fallbackToSynthetic = function (source, coords, timeFactor, ts) {
+    const intensity = (appState.rainfallAmount / 300) * timeFactor;
+    const intensityBucket = Math.round(intensity * 10) / 10;
+    const cacheKey = `${appState.currentVillageId}_${ts}_${intensityBucket}`;
+
+    if (source._lastCacheKey !== cacheKey) {
+        const floodData = generateFloodGrid(coords, intensity, appState.currentVillageId);
+        source.setData(floodData);
+        source._lastCacheKey = cacheKey;
+    }
+};
 
 function addVillageBoundary(villageId) {
     if (!appState.map) return;
@@ -1370,7 +1418,95 @@ function generateSoilGrid(village) {
 // ============================================
 let currentPopup = null;
 
-// Deep Scan removed
+// Deep Scan Inspector
+async function handleDeepScan(e, lngLat) {
+    const coords = lngLat || (e && e.lngLat);
+    if (!coords) return;
+
+    const { lng, lat } = coords;
+
+    // Show indicator
+    const inspector = document.getElementById('cellInspector');
+    if (inspector) {
+        inspector.style.display = 'block';
+        document.getElementById('inspectRisk').innerHTML = 'SCANNING <span class="pulse-dot"></span>';
+        inspector.querySelector('.risk-marker').style.left = '-100%';
+    }
+
+    // Try to get data from API
+    try {
+        const village = appState.data.villages[appState.currentVillageId];
+        const terrainType = village.info.terrain_type.replace(/_/g, ' ').toUpperCase();
+
+        // Find nearest point in terrain data if available
+        let elevation = "N/A";
+        let waterDepth = "0.0m";
+        let riskLevel = "LOW";
+
+        // Mock data logic based on rainfall if API not ready
+        // 1. Calculate approximate elevation (using simple noise based on lat/lon)
+        const noise = Math.sin(lng * 100) * Math.cos(lat * 100);
+        const baseElev = village.info.id.includes('wayanad') ? 750 : (village.info.id.includes('dhemaji') ? 110 : 50);
+        const elevVal = baseElev + (noise * 20);
+        elevation = `${Math.round(elevVal)}m`;
+
+        // 2. Calculate Water Depth based on simulation
+        // Higher intensity = more depth in low areas (low noise)
+        if (noise < 0) {
+            const depthFactor = Math.abs(noise);
+            const rainFactor = appState.rainfallAmount / 300; // 0 to 1
+            const currentDepth = depthFactor * rainFactor * 4; // Max 4m
+            waterDepth = currentDepth > 0.1 ? `${currentDepth.toFixed(1)}m` : "0.0m";
+
+            // Determine Risk
+            if (currentDepth > 1.5) riskLevel = "EXTREME";
+            else if (currentDepth > 0.8) riskLevel = "HIGH";
+            else if (currentDepth > 0.3) riskLevel = "MODERATE";
+        }
+
+        // Update UI
+        document.getElementById('inspectTerrainType').textContent = terrainType;
+        document.getElementById('inspectElev').textContent = elevation;
+        document.getElementById('inspectDepth').textContent = waterDepth;
+        document.getElementById('inspectPopAtRisk').textContent = riskLevel === 'EXTREME' ? 'HIGH' : (riskLevel === 'HIGH' ? 'MED' : 'LOW');
+        document.getElementById('inspectDensity').textContent = "~120/km²"; // Mock density
+
+        const riskEl = document.getElementById('inspectRisk');
+        riskEl.textContent = riskLevel;
+        riskEl.style.color = riskLevel === 'EXTREME' ? '#ef4444' : (riskLevel === 'HIGH' ? '#f97316' : (riskLevel === 'MODERATE' ? '#eab308' : '#22c55e'));
+
+        // Animate bar
+        setTimeout(() => {
+            const bar = inspector.querySelector('.risk-marker');
+            let percentage = '10%';
+            if (riskLevel === 'EXTREME') percentage = '95%';
+            else if (riskLevel === 'HIGH') percentage = '75%';
+            else if (riskLevel === 'MODERATE') percentage = '45%';
+            bar.style.left = '0%';
+            bar.style.width = percentage;
+            bar.style.backgroundColor = riskEl.style.color;
+        }, 100);
+
+        // Show marker on map
+        if (currentPopup) currentPopup.remove();
+
+        const popupContent = `
+            <div style="font-family:'Rajdhani'; color:#0f172a; padding:5px;">
+                <div style="font-weight:700; font-size:1.1rem; border-bottom:1px solid #ccc; margin-bottom:4px;">${riskLevel} RISK</div>
+                <div>Depth: ${waterDepth}</div>
+                <div>Elev: ${elevation}</div>
+            </div>
+        `;
+
+        currentPopup = new maplibregl.Popup({ closeButton: false, className: 'deep-scan-popup' })
+            .setLngLat([lng, lat])
+            .setHTML(popupContent)
+            .addTo(appState.map);
+
+    } catch (e) {
+        console.error("Deep scan failed", e);
+    }
+}
 
 function handleMouseEnter(e) {
     appState.map.getCanvas().style.cursor = 'crosshair';
@@ -2012,19 +2148,19 @@ async function handleRescueClick(e) {
 function calculateClientSideRescueRoute(userLng, userLat) {
     const config = SIMULATION_CONFIG[appState.currentVillageId] || SIMULATION_CONFIG.wayanad_meppadi;
 
-    // Define safe havens based on village (hardcoded fallbacks for all 3 major villages)
+    // Define safe havens based on village (Updated with robust coordinates outside risk zones)
     const havens = {
         'wayanad_meppadi': [
-            { name: 'Meppadi Primary Health Centre', lat: 11.558, lon: 76.132 },
-            { name: 'St. Joseph Community Shelter', lat: 11.552, lon: 76.141 }
+            { name: 'Kalpetta District Hospital', lat: 11.609, lon: 76.082 },
+            { name: 'Kalpetta Police Station', lat: 11.605, lon: 76.088 }
         ],
         'darbhanga': [
-            { name: 'DMCH Hospital Safe Zone', lat: 26.126, lon: 85.895 },
-            { name: 'North Bihar Relief Camp', lat: 26.115, lon: 85.908 }
+            { name: 'DMCH (Medical College)', lat: 26.133, lon: 85.901 },
+            { name: 'Laheriasarai Police Station', lat: 26.126, lon: 85.895 }
         ],
         'dhemaji': [
             { name: 'Dhemaji Civil Hospital', lat: 27.485, lon: 94.555 },
-            { name: 'Flood Relief Shelter A', lat: 27.475, lon: 94.568 }
+            { name: 'Dhemaji District Police HQ', lat: 27.480, lon: 94.560 }
         ]
     };
 
@@ -2212,24 +2348,26 @@ function startFloodAnimation() {
     const timesteps = ['t1', 't2', 't3'];
     let currentTimestepIndex = 0;
 
+    // Use a much slower, subtler animation to prevent blinking
+    // Breathing effect: 0.6 to 0.75 opacity at ~5fps (200ms interval)
     appState.floodAnimationId = setInterval(() => {
         frame++;
 
-        // Pulse opacity (0.4 to 0.8)
-        const pulse = 0.4 + 0.4 * Math.sin(frame * 0.15);
+        // Subtle breathing effect (0.6 to 0.75 range, very slow oscillation)
+        const breathe = 0.65 + 0.1 * Math.sin(frame * 0.08);
 
         // Update flood layer opacity
         const layerId = `flood-risk-layer-${appState.currentTimeStep}`;
         if (appState.map && appState.map.getLayer(layerId)) {
-            appState.map.setPaintProperty(layerId, 'fill-opacity', pulse);
+            appState.map.setPaintProperty(layerId, 'fill-opacity', breathe);
         }
 
-        // Switch timesteps every 60 frames (~2 seconds)
-        if (frame % 60 === 0 && appState.apiData.floodSimulation) {
+        // Switch timesteps every 30 frames (~6 seconds at 200ms interval)
+        if (frame % 30 === 0 && appState.apiData.floodSimulation) {
             currentTimestepIndex = (currentTimestepIndex + 1) % timesteps.length;
             // Could switch flood polygon data here if using API-driven simulation
         }
-    }, 33); // ~30fps
+    }, 200); // ~5fps - much smoother, no visible blinking
 }
 
 /**
@@ -2253,6 +2391,15 @@ async function fetchFloodSimulation() {
     });
 
     if (result && result.status === 'success') {
+        // Normalize API data to match frontend style expectations
+        if (result.simulation && result.simulation.features) {
+            result.simulation.features.forEach(f => {
+                // Map max_depth_m to value if value is missing
+                if (f.properties.max_depth_m !== undefined && f.properties.value === undefined) {
+                    f.properties.value = f.properties.max_depth_m;
+                }
+            });
+        }
         appState.apiData.floodSimulation = result.simulation;
         console.log('✓ Flood simulation loaded from API');
         return result.simulation;
@@ -2368,7 +2515,7 @@ function renderAPIPopulation() {
     if (!appState.map || !appState.apiData.population) return;
 
     const population = appState.apiData.population;
-    
+
     // Check if button is active to determine initial visibility
     const isPopBtnActive = document.getElementById('btnLayerPop')?.classList.contains('active');
     const visibility = isPopBtnActive ? 'visible' : 'none';
@@ -2399,7 +2546,7 @@ function renderAPIPopulation() {
                     0.85, 'rgba(255, 100, 50, 0.85)', // Orange-red for very high
                     1, 'rgba(255, 0, 0, 0.95)'       // Red for highest density (most at risk)
                 ],
-                'heatmap-radius': ['interpolate', ['linear'], ['zoom'], 
+                'heatmap-radius': ['interpolate', ['linear'], ['zoom'],
                     10, 15,   // Smaller radius when zoomed out
                     13, 30,   // Medium radius at default zoom
                     16, 50    // Larger radius when zoomed in
@@ -2408,7 +2555,7 @@ function renderAPIPopulation() {
             }
         });
     }
-    
+
     // Ensure visibility matches button state
     if (appState.map.getLayer('api-population-layer')) {
         appState.map.setLayoutProperty('api-population-layer', 'visibility', visibility);
@@ -2462,37 +2609,45 @@ const SIMULATION_CONFIG = {
         flashFloodProne: true,
         riskFactors: ['Landslide Risk', 'Flash Flood', 'Debris Flow'],
         hazardIcon: '⛰️',
-        floodCharacteristic: 'Valley accumulation with steep runoff channels',
-        evacuationAdvice: 'Move to higher ground away from valleys and slopes',
-        bbox: [76.10, 11.52, 76.17, 11.59] // Refined for better resolution
+        floodCharacteristic: 'Rapid valley accumulation with high-velocity runoff',
+        evacuationAdvice: 'Move to higher ground immediately; avoid all valley floors',
+        bbox: [76.10, 11.52, 76.17, 11.59]
     },
     darbhanga: {
         type: 'riverine_plain',
         name: 'Gangetic Plain',
         baseElevation: 53,
         elevationRange: 10,
-        runoffMultiplier: 0.8,
+        runoffMultiplier: 0.9,
         embankmentBreachProne: true,
-        riskFactors: ['River Overflow', 'Embankment Breach', 'Waterlogging'],
+        riskFactors: ['River Overflow', 'Embankment Breach', 'Stagnant Water'],
         hazardIcon: '🌊',
-        floodCharacteristic: 'Linear river channel flooding with slow lateral spread',
-        evacuationAdvice: 'Move away from river embankments to designated shelters',
-        bbox: [85.85, 26.12, 85.93, 26.19] // Refined for better resolution
+        floodCharacteristic: 'Linear channel spread with secondary drainage congestion',
+        evacuationAdvice: 'Relocate to elevated community shelters; avoid embankments',
+        bbox: [85.85, 26.12, 85.93, 26.19]
     },
     dhemaji: {
         type: 'floodplain',
         name: 'Brahmaputra Floodplain',
         baseElevation: 53,
         elevationRange: 15,
-        runoffMultiplier: 1.2,
+        runoffMultiplier: 1.3,
         riverSwellProne: true,
-        riskFactors: ['River Swell', 'Bank Erosion', 'Sheet Flooding'],
+        riskFactors: ['River Swell', 'Bank Erosion', 'Widespread Sheet Flooding'],
         hazardIcon: '🏞️',
-        floodCharacteristic: 'Wide-area sheet flooding with tributary confluence',
-        evacuationAdvice: 'Move to elevated platforms or community shelters on high ground',
-        bbox: [94.53, 27.45, 94.60, 27.51] // Refined for better resolution
+        floodCharacteristic: 'Extensive low-velocity sheet flooding across entire plains',
+        evacuationAdvice: 'Move to raised platforms (Chang Ghars) or designated high ground',
+        bbox: [94.53, 27.45, 94.60, 27.51]
     }
 };
+
+/**
+ * Simple pseudo-random noise function for variation
+ */
+function simpleNoise(x, y, scale = 1) {
+    const n = Math.sin(x * 0.123 + y * 0.456) * Math.cos(x * 0.789 - y * 0.123);
+    return (n + 1) / 2; // Normalize to 0-1
+}
 
 // --- LOCATION SPECIFIC SIMULATION ALGORITHMS ---
 
@@ -2505,22 +2660,21 @@ function generateHillyFlood(x, y, gridSize, intensity) {
     const dy = (y - gridSize / 2);
     const dist = Math.sqrt(dx * dx + dy * dy) / (gridSize / 2.5);
 
-    // Multiple valley channels radiating from center (landslide corridors)
-    const valley1 = Math.exp(-Math.pow(dy - dx * 0.3, 2) / 8);  // NE-SW valley
-    const valley2 = Math.exp(-Math.pow(dy + dx * 0.2 - 5, 2) / 6);  // Secondary valley
-    const valley3 = Math.exp(-Math.pow(dx - 10, 2) / 10);  // Vertical stream
+    // Fractal-like noise for ruggedness
+    const n1 = simpleNoise(x * 2, y * 2) * 0.5;
+    const n2 = simpleNoise(x * 5, y * 5) * 0.25;
+    const combinedNoise = n1 + n2;
 
-    // Steep slope accumulation zones
-    const slopeAccum = Math.sin(x * 0.15) * Math.sin(y * 0.12) * 0.6;
+    // Multiple narrow valley channels radiating (simulating steep drainages)
+    const valley1 = Math.exp(-Math.pow(dy - dx * 0.4, 2) / 4);  // Narrower steep valley
+    const valley2 = Math.exp(-Math.pow(dy + dx * 0.6 - 10, 2) / 3);  // Another tributary
+    const valley3 = Math.exp(-Math.pow(dx + 5, 2) / 5); // North-south accumulation
 
-    // Flash flood surge pattern - concentrated in low points
-    const flashSurge = (1.5 - dist) * (valley1 + valley2 * 0.7 + valley3 * 0.5);
+    const flashSurge = (1.5 - dist) * (valley1 + valley2 * 0.8 + valley3 * 0.6 + combinedNoise * 0.4);
 
-    // Debris flow noise (irregular patterns)
-    const debrisNoise = Math.sin(x * 1.2 + y * 0.8) * Math.cos(x * 0.5 - y * 1.1) * 0.4;
-
-    const val = flashSurge + slopeAccum + debrisNoise * intensity;
-    return Math.max(0, val * intensity * 5.5);
+    // Non-linear intensity scaling for flash floods (sharp rise)
+    const scaledIntensity = Math.pow(intensity, 1.2);
+    return Math.max(0, flashSurge * scaledIntensity * 7.5);
 }
 
 /**
@@ -2531,26 +2685,28 @@ function generateRiverineFlood(x, y, gridSize, intensity) {
     const centerX = gridSize / 2;
     const centerY = gridSize / 2;
 
-    // Primary river channel (Kosi-like meandering)
-    const riverMeander = Math.sin(y * 0.15) * 4;
+    // Primary river channel with more organic wandering
+    const riverMeander = Math.sin(y * 0.12) * 5 + Math.cos(y * 0.05) * 3;
     const mainRiverDist = Math.abs(x - centerX - riverMeander);
-    const mainRiver = Math.exp(-Math.pow(mainRiverDist, 2) / 20);
+    const mainRiver = Math.exp(-Math.pow(mainRiverDist, 2) / 18);
 
-    // Secondary tributary (Kamla-like)
-    const tributaryOffset = Math.sin(y * 0.2 + 2) * 3;
-    const tributaryDist = Math.abs(x - centerX + 12 - tributaryOffset);
-    const tributary = Math.exp(-Math.pow(tributaryDist, 2) / 15) * 0.7;
+    // Embankment breach effect (creates localized "tongues" of water)
+    const breachDistance = Math.min(
+        Math.sqrt((x - centerX - 8) ** 2 + (y - centerY + 5) ** 2),
+        Math.sqrt((x - centerX + 7) ** 2 + (y - centerY - 8) ** 2)
+    );
+    const breachEffect = Math.exp(-breachDistance / 8) * 1.5;
 
-    // Embankment breach simulation (localized high-intensity zones)
-    const breach1 = Math.exp(-((x - centerX - 5) ** 2 + (y - centerY + 8) ** 2) / 25) * 1.5;
-    const breach2 = Math.exp(-((x - centerX + 3) ** 2 + (y - centerY - 10) ** 2) / 30) * 1.2;
+    // Stagnant waterlogging in depressions (patchy noise)
+    const waterlogging = simpleNoise(x * 1.5, y * 1.5) * 0.6;
 
-    // Slow lateral spreading on flat terrain (waterlogging zones)
-    const waterlog = Math.sin(x * 0.08) * Math.sin(y * 0.08) * 0.3;
+    // Combine: Main channel + breaches + background waterlogging
+    const val = (mainRiver * 3.0 + breachEffect + waterlogging) * intensity;
 
-    // Combine patterns
-    const val = (mainRiver * 2.5 + tributary * 1.8 + breach1 + breach2) * (1 + waterlog);
-    return Math.max(0, val * intensity * 3.5);
+    // Add some random "ponds"
+    const ponds = (simpleNoise(x * 4, y * 4) > 0.8) ? 0.3 * intensity : 0;
+
+    return Math.max(0, (val + ponds) * 4.0);
 }
 
 /**
@@ -2561,28 +2717,25 @@ function generateFloodplainFlood(x, y, gridSize, intensity) {
     const centerX = gridSize / 2;
     const centerY = gridSize / 2;
 
-    // Brahmaputra main channel (wide, braided pattern)
-    const braidOffset1 = Math.sin(y * 0.12) * 6;
-    const braidOffset2 = Math.sin(y * 0.18 + 1.5) * 4;
-    const mainChannel = Math.exp(-Math.pow(x - centerX - braidOffset1, 2) / 50) +
-        Math.exp(-Math.pow(x - centerX - braidOffset2 - 8, 2) / 40) * 0.6;
+    // Braided river system (multiple shifting channels)
+    const channel1 = Math.exp(-Math.pow(x - centerX - Math.sin(y * 0.1) * 8, 2) / 60);
+    const channel2 = Math.exp(-Math.pow(x - (centerX + 12) - Math.cos(y * 0.15) * 6, 2) / 40) * 0.7;
 
-    // Multiple tributary confluence (Subansiri, Ranganadi patterns)
-    const trib1 = Math.exp(-Math.pow(y - x * 0.4 - 10, 2) / 35) * 0.8;
-    const trib2 = Math.exp(-Math.pow(y + x * 0.3 - 25, 2) / 40) * 0.6;
+    // Wide area inundation (sheet flow)
+    const sheetFlow = (1 - (Math.abs(x - centerX) / (gridSize * 0.6))) * 0.8;
 
-    // Wide sheet flooding (characteristic of floodplains)
-    const dist = Math.sqrt((x - centerX) ** 2 + (y - centerY) ** 2) / (gridSize / 1.8);
-    const sheetFlood = Math.max(0, (1.2 - dist)) * 0.8;
+    // Micro-topography variation (clumpy flood patterns)
+    const microTopography = simpleNoise(x * 0.8, y * 0.8) * 0.5;
 
-    // Bank erosion zones (irregular edge patterns)
-    const erosionNoise = (Math.sin(x * 0.3 + y * 0.2) + Math.cos(x * 0.15 - y * 0.25)) * 0.25;
+    // Confluence zones (where channels meet)
+    const confluence = Math.exp(-Math.sqrt((x - centerX) ** 2 + (y - centerY) ** 2) / 15) * 0.4;
 
-    // Silt deposit accumulation (low-lying areas)
-    const siltDeposit = Math.sin(x * 0.05) * Math.sin(y * 0.06) * 0.2;
+    const val = (channel1 + channel2 + sheetFlow + microTopography + confluence) * intensity;
 
-    const val = mainChannel * 1.8 + trib1 + trib2 + sheetFlood + erosionNoise + siltDeposit;
-    return Math.max(0, val * intensity * 3.2);
+    // Large-scale variation
+    const largeScale = Math.sin(x * 0.05) * Math.cos(y * 0.04) * 0.2;
+
+    return Math.max(0, (val + largeScale) * 3.8);
 }
 
 // Legacy function renamed for backward compatibility
@@ -2801,9 +2954,9 @@ function handleDeepScan(feature, lngLat) {
  */
 function calculatePopulationAtRisk(lngLat, riskLevel, depth) {
     const result = { count: 0, density: 'LOW' };
-    
+
     // Get population data from API response
-    const popData = appState.apiData?.populationHeatmap;
+    const popData = appState.apiData?.population;
     if (!popData || !popData.features) {
         // Fallback estimation based on location and risk
         const riskMultiplier = { 'extreme': 1.0, 'high': 0.7, 'medium': 0.4, 'low': 0.1, 'safe': 0 };
@@ -2813,43 +2966,43 @@ function calculatePopulationAtRisk(lngLat, riskLevel, depth) {
         result.density = multiplier > 0.6 ? 'HIGH' : (multiplier > 0.3 ? 'MEDIUM' : 'LOW');
         return result;
     }
-    
+
     // Define tile bounds (approximate 500m x 500m tile)
     const tileSize = 0.005; // ~500m in degrees
     const minLng = lngLat.lng - tileSize / 2;
     const maxLng = lngLat.lng + tileSize / 2;
     const minLat = lngLat.lat - tileSize / 2;
     const maxLat = lngLat.lat + tileSize / 2;
-    
+
     // Count population points within tile and sum intensities
     let totalIntensity = 0;
     let pointsInTile = 0;
-    
+
     popData.features.forEach(feature => {
         const coords = feature.geometry.coordinates;
-        if (coords[0] >= minLng && coords[0] <= maxLng && 
+        if (coords[0] >= minLng && coords[0] <= maxLng &&
             coords[1] >= minLat && coords[1] <= maxLat) {
             pointsInTile++;
             totalIntensity += feature.properties.intensity || 0.5;
         }
     });
-    
+
     // Calculate estimated population based on village total and point density
     const metadata = popData.metadata || {};
     const totalPop = metadata.estimated_population || 15000;
     const totalPoints = popData.features.length || 600;
     const popPerPoint = totalPop / totalPoints;
-    
+
     // Population at risk = points in tile * pop per point * intensity * risk factor
     const riskFactor = { 'extreme': 1.0, 'high': 0.8, 'medium': 0.5, 'low': 0.2, 'safe': 0 };
     const factor = riskFactor[riskLevel.toLowerCase()] || 0;
-    
+
     if (pointsInTile > 0) {
         const avgIntensity = totalIntensity / pointsInTile;
         result.count = Math.round(pointsInTile * popPerPoint * avgIntensity * factor);
         result.density = avgIntensity > 0.7 ? 'HIGH' : (avgIntensity > 0.4 ? 'MEDIUM' : 'LOW');
     }
-    
+
     return result;
 }
 

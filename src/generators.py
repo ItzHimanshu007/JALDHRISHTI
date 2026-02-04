@@ -84,42 +84,52 @@ class TerrainConfig:
 class ValleyTerrainGenerator:
     """Generates a parabolic valley terrain heightmap."""
     
-    def __init__(self, config: TerrainConfig = None):
+    def __init__(self, config: TerrainConfig = None, village_id: str = "wayanad_meppadi"):
         self.config = config or TerrainConfig()
+        self.village_id = village_id
         self.heightmap = None
         self.slope_map = None
         
     def generate_heightmap(self) -> np.ndarray:
         """
-        Generate parabolic valley terrain.
-        High elevation on edges, low in center (riverbed).
+        Generate realistic terrain based on village type.
         """
+        village_id = self.village_id
         size = self.config.grid_size
-        
-        # Create parabolic base (valley shape)
         x = np.linspace(-1, 1, size)
         y = np.linspace(-1, 1, size)
         X, Y = np.meshgrid(x, y)
         
-        # Parabolic valley - high on left/right edges, low in center
-        # Using X^2 creates the valley running north-south
-        parabolic = X ** 2
-        
-        # Add slight variation along Y axis (river gradient)
-        river_gradient = 0.1 * (1 - Y)  # Higher in north, lower in south
-        
-        # Combine for base terrain
+        if "wayanad" in village_id:
+            # Steep V-shaped valley
+            parabolic = np.abs(X) ** 1.5 
+            river_gradient = 0.05 * (1 - Y)
+            noise_scale = 12.0
+            noise_octaves = 6
+            noise_blend = 0.25
+        elif "darbhanga" in village_id:
+            # Very flat with subtle depressions
+            parabolic = 0.05 * (X**2 + Y**2)
+            river_gradient = 0.01 * Y
+            noise_scale = 25.0
+            noise_octaves = 4
+            noise_blend = 0.4
+        else: # Dhemaji
+            # Braided river plain
+            parabolic = 0.1 * X**2
+            river_gradient = 0.02 * (1 - Y)
+            noise_scale = 18.0
+            noise_octaves = 5
+            noise_blend = 0.3
+            
         base_terrain = parabolic + river_gradient
+        base_terrain = (base_terrain - base_terrain.min()) / (base_terrain.max() - base_terrain.min() + 1e-6)
         
-        # Normalize to 0-1
-        base_terrain = (base_terrain - base_terrain.min()) / (base_terrain.max() - base_terrain.min())
+        # Enhanced Perlin noise
+        noise = perlin_noise_2d((size, size), scale=noise_scale, octaves=noise_octaves)
+        noise = (noise - noise.min()) / (noise.max() - noise.min() + 1e-6)
         
-        # Add Perlin noise for organic appearance
-        noise = perlin_noise_2d((size, size), scale=15.0, octaves=4)
-        noise = (noise - noise.min()) / (noise.max() - noise.min())
-        
-        # Blend: 85% parabolic structure, 15% noise
-        combined = 0.85 * base_terrain + 0.15 * noise
+        combined = (1 - noise_blend) * base_terrain + noise_blend * noise
         
         # Scale to elevation range
         elevation_range = self.config.max_elevation - self.config.min_elevation
@@ -132,15 +142,10 @@ class ValleyTerrainGenerator:
         if self.heightmap is None:
             self.generate_heightmap()
         
-        # Calculate gradients
         dy, dx = np.gradient(self.heightmap)
-        
-        # Convert to slope angle (degrees)
-        # Assuming each cell is ~100m
         cell_size = 100  # meters
         slope_rad = np.arctan(np.sqrt(dx**2 + dy**2) / cell_size)
         self.slope_map = np.degrees(slope_rad)
-        
         return self.slope_map
     
     def to_geojson_points(self) -> Dict:
@@ -278,16 +283,46 @@ class VillageBoundaryGenerator:
 
 
 class InfrastructureGenerator:
-    """Smart placement of infrastructure based on terrain."""
+    """Smart placement of infrastructure based on terrain and village context."""
     
-    def __init__(self, terrain: ValleyTerrainGenerator):
+    # Village-specific infrastructure needs
+    VILLAGE_INFRA = {
+        "wayanad_meppadi": [
+            {"name": "Meppadi Community Hospital", "type": "hospital", "is_safe": True, "quad": "NW"},
+            {"name": "Meppadi Police Station", "type": "police", "is_safe": True, "quad": "NE"},
+            {"name": "St. Joseph's School", "type": "school", "is_safe": False, "quad": "center"},
+            {"name": "Meppadi Govt Higher Secondary School", "type": "school", "is_safe": False, "quad": "SW"},
+            {"name": "Village Market", "type": "market", "is_safe": False, "quad": "center"},
+            {"name": "Fire & Rescue Station", "type": "fire_station", "is_safe": True, "quad": "NW"},
+            {"name": "Panchayat Hall", "type": "shelter", "is_safe": True, "quad": "SE"}
+        ],
+        "darbhanga": [
+            {"name": "Darbhanga Medical College Hospital", "type": "hospital", "is_safe": True, "quad": "NW"},
+            {"name": "City Police HQ", "type": "police", "is_safe": True, "quad": "NE"},
+            {"name": "Central School Darbhanga", "type": "school", "is_safe": False, "quad": "center"},
+            {"name": "Zila School", "type": "school", "is_safe": False, "quad": "SW"},
+            {"name": "Tower Chowk Market", "type": "market", "is_safe": False, "quad": "center"},
+            {"name": "Main Fire Station", "type": "fire_station", "is_safe": True, "quad": "NW"},
+            {"name": "Community Relief Center", "type": "shelter", "is_safe": True, "quad": "SE"}
+        ],
+        "dhemaji": [
+            {"name": "Dhemaji Civil Hospital", "type": "hospital", "is_safe": True, "quad": "NW"},
+            {"name": "Dhemaji Sardar Police Station", "type": "police", "is_safe": True, "quad": "NE"},
+            {"name": "Dhemaji Girls Higher Secondary School", "type": "school", "is_safe": False, "quad": "center"},
+            {"name": "Pachim Dhemaji School", "type": "school", "is_safe": False, "quad": "SW"},
+            {"name": "Weekly Tribal Market", "type": "market", "is_safe": False, "quad": "center"},
+            {"name": "Disaster Response Base", "type": "fire_station", "is_safe": True, "quad": "NW"},
+            {"name": "Flood Mitigation Center", "type": "shelter", "is_safe": True, "quad": "SE"}
+        ]
+    }
+
+    def __init__(self, terrain: ValleyTerrainGenerator, village_id: str = "wayanad_meppadi"):
         self.terrain = terrain
+        self.village_id = village_id
         
     def generate_pois(self) -> Dict:
         """
-        Generate Points of Interest with smart placement.
-        - High ground: Hospital, Police Station (safe)
-        - Low ground: Schools, Market (at risk)
+        Generate Points of Interest with smart placement based on village context.
         """
         if self.terrain.heightmap is None:
             self.terrain.generate_heightmap()
@@ -298,73 +333,65 @@ class InfrastructureGenerator:
         
         features = []
         
-        # Find high ground locations (upper 20% of elevation)
-        high_threshold = np.percentile(heightmap, 80)
-        # Find low ground locations (lower 30% of elevation)
-        low_threshold = np.percentile(heightmap, 30)
+        infra_list = self.VILLAGE_INFRA.get(self.village_id, self.VILLAGE_INFRA["wayanad_meppadi"])
         
-        def add_poi(name: str, poi_type: str, is_safe: bool, quadrant: str):
-            """Add a POI in the specified quadrant."""
-            # Determine search area based on quadrant
-            if quadrant == "NW":
-                i_range, j_range = (0, size//2), (0, size//2)
-            elif quadrant == "NE":
-                i_range, j_range = (0, size//2), (size//2, size)
-            elif quadrant == "SW":
-                i_range, j_range = (size//2, size), (0, size//2)
-            elif quadrant == "SE":
-                i_range, j_range = (size//2, size), (size//2, size)
-            else:  # Center
-                i_range, j_range = (size//3, 2*size//3), (size//3, 2*size//3)
-            
-            # Find suitable location
-            sub_heightmap = heightmap[i_range[0]:i_range[1], j_range[0]:j_range[1]]
-            
-            if is_safe:
-                # Find highest point in region
-                idx = np.unravel_index(np.argmax(sub_heightmap), sub_heightmap.shape)
-            else:
-                # Find lowest point in region
-                idx = np.unravel_index(np.argmin(sub_heightmap), sub_heightmap.shape)
-            
-            i = i_range[0] + idx[0]
-            j = j_range[0] + idx[1]
-            
-            lat = config.center_lat + (i - size/2) * config.grid_resolution
-            lon = config.center_lon + (j - size/2) * config.grid_resolution
-            elevation = float(heightmap[i, j])
-            
-            return {
-                "type": "Feature",
-                "properties": {
-                    "name": name,
-                    "type": poi_type,
-                    "is_safe_haven": is_safe,
-                    "elevation_m": elevation,
-                    "risk_level": "low" if is_safe else "high"
-                },
-                "geometry": {
-                    "type": "Point",
-                    "coordinates": [lon, lat]
-                }
-            }
-        
-        # Safe locations (high ground)
-        features.append(add_poi("District Hospital", "hospital", True, "NW"))
-        features.append(add_poi("Police Station", "police", True, "NE"))
-        
-        # At-risk locations (low ground / riverbed)
-        features.append(add_poi("Government School", "school", False, "center"))
-        features.append(add_poi("Primary School", "school", False, "SW"))
-        features.append(add_poi("Main Market", "market", False, "center"))
-        
-        # Additional infrastructure
-        features.append(add_poi("Fire Station", "fire_station", True, "NW"))
-        features.append(add_poi("Community Hall", "shelter", False, "SE"))
+        for item in infra_list:
+            poi = self._add_poi(item["name"], item["type"], item["is_safe"], item["quad"])
+            features.append(poi)
         
         return {
             "type": "FeatureCollection",
             "features": features
+        }
+
+    def _add_poi(self, name: str, poi_type: str, is_safe: bool, quadrant: str):
+        """Internal helper for POI placement."""
+        config = self.terrain.config
+        size = config.grid_size
+        heightmap = self.terrain.heightmap
+        
+        # Determine search area based on quadrant
+        if quadrant == "NW":
+            i_range, j_range = (0, size//2), (0, size//2)
+        elif quadrant == "NE":
+            i_range, j_range = (0, size//2), (size//2, size)
+        elif quadrant == "SW":
+            i_range, j_range = (size//2, size), (0, size//2)
+        elif quadrant == "SE":
+            i_range, j_range = (size//2, size), (size//2, size)
+        else:  # Center
+            i_range, j_range = (size//3, 2*size//3), (size//3, 2*size//3)
+        
+        # Find suitable location
+        sub_heightmap = heightmap[i_range[0]:i_range[1], j_range[0]:j_range[1]]
+        
+        if is_safe:
+            # Find highest point in region for safety
+            idx = np.unravel_index(np.argmax(sub_heightmap), sub_heightmap.shape)
+        else:
+            # Find lower ground points (more likely for schools/markets)
+            idx = np.unravel_index(np.argmin(sub_heightmap), sub_heightmap.shape)
+        
+        i = i_range[0] + idx[0]
+        j = j_range[0] + idx[1]
+        
+        lat = config.center_lat + (i - size/2) * config.grid_resolution
+        lon = config.center_lon + (j - size/2) * config.grid_resolution
+        elevation = float(heightmap[i, j])
+        
+        return {
+            "type": "Feature",
+            "properties": {
+                "name": name,
+                "type": poi_type,
+                "is_safe_haven": is_safe,
+                "elevation_m": round(elevation, 1),
+                "risk_level": "low" if is_safe else "high"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [lon, lat]
+            }
         }
 
 
@@ -590,12 +617,12 @@ def generate_all_data(config: TerrainConfig = None, village_id: str = "wayanad_m
         config = TerrainConfig()
     
     # Initialize generators
-    terrain = ValleyTerrainGenerator(config)
+    terrain = ValleyTerrainGenerator(config, village_id=village_id)
     terrain.generate_heightmap()
     terrain.calculate_slope()
     
     boundary_gen = VillageBoundaryGenerator(terrain, village_id=village_id)
-    infra_gen = InfrastructureGenerator(terrain)
+    infra_gen = InfrastructureGenerator(terrain, village_id=village_id)
     pop_gen = PopulationHeatmapGenerator(terrain, village_id=village_id)
     
     return {
