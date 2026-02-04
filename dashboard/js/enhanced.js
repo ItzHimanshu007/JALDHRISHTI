@@ -1784,10 +1784,6 @@ async function run() {
         bindEvents();
         init3DMap();
 
-        // Start Mission Clock
-        setInterval(updateClock, 1000);
-        updateClock();
-
         // Start Synthetic Data Updates (temperature, soil) - updates every 60 seconds
         setInterval(updateSyntheticData, 60000);
         updateSyntheticData();
@@ -1842,22 +1838,6 @@ async function updateSyntheticData() {
         }
     } catch (e) {
         console.error("Live weather fetch failed, using fallback:", e);
-    }
-}
-
-function updateClock() {
-    const clock = document.getElementById('missionClock');
-    if (clock) {
-        const now = new Date();
-        // Format: HH:MM:SS UTC
-        const time = now.toISOString().substring(11, 19);
-        clock.textContent = `${time} UTC`;
-
-        // Random "Telemetry" effect occasionally
-        if (Math.random() < 0.05) {
-            clock.style.color = '#ef4444'; // Red flash
-            setTimeout(() => clock.style.color = '', 200);
-        }
     }
 }
 

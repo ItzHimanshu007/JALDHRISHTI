@@ -23,70 +23,26 @@
             "forecast": {
                 "yearly": {
                     "yearly_summary": {
+                        "expected_rainfall_mm": 2425,
+                        "peak_risk_month": "July",
+                        "total_high_risk_days": 35,
                         "peak_risk_score": 0.85,
-                        "flood_probability": 0.65
+                        "flood_probability": 0.65,
+                        "high_risk_months": ["June", "July", "August"]
                     },
                     "monthly_forecast": [
-                        {
-                            "month_name": "January",
-                            "expected_rainfall_mm": 12,
-                            "flood_probability": 0.05
-                        },
-                        {
-                            "month_name": "February",
-                            "expected_rainfall_mm": 18,
-                            "flood_probability": 0.08
-                        },
-                        {
-                            "month_name": "March",
-                            "expected_rainfall_mm": 45,
-                            "flood_probability": 0.15
-                        },
-                        {
-                            "month_name": "April",
-                            "expected_rainfall_mm": 120,
-                            "flood_probability": 0.35
-                        },
-                        {
-                            "month_name": "May",
-                            "expected_rainfall_mm": 250,
-                            "flood_probability": 0.65
-                        },
-                        {
-                            "month_name": "June",
-                            "expected_rainfall_mm": 550,
-                            "flood_probability": 0.95
-                        },
-                        {
-                            "month_name": "July",
-                            "expected_rainfall_mm": 650,
-                            "flood_probability": 0.98
-                        },
-                        {
-                            "month_name": "August",
-                            "expected_rainfall_mm": 480,
-                            "flood_probability": 0.92
-                        },
-                        {
-                            "month_name": "September",
-                            "expected_rainfall_mm": 220,
-                            "flood_probability": 0.55
-                        },
-                        {
-                            "month_name": "October",
-                            "expected_rainfall_mm": 180,
-                            "flood_probability": 0.45
-                        },
-                        {
-                            "month_name": "November",
-                            "expected_rainfall_mm": 90,
-                            "flood_probability": 0.25
-                        },
-                        {
-                            "month_name": "December",
-                            "expected_rainfall_mm": 35,
-                            "flood_probability": 0.12
-                        }
+                        { "month_name": "January", "expected_rainfall_mm": 12, "flood_probability": 0.05, "risk_level": "low", "high_risk_days": 0 },
+                        { "month_name": "February", "expected_rainfall_mm": 18, "flood_probability": 0.08, "risk_level": "low", "high_risk_days": 0 },
+                        { "month_name": "March", "expected_rainfall_mm": 45, "flood_probability": 0.15, "risk_level": "low", "high_risk_days": 1 },
+                        { "month_name": "April", "expected_rainfall_mm": 120, "flood_probability": 0.35, "risk_level": "medium", "high_risk_days": 3 },
+                        { "month_name": "May", "expected_rainfall_mm": 250, "flood_probability": 0.65, "risk_level": "high", "high_risk_days": 8 },
+                        { "month_name": "June", "expected_rainfall_mm": 550, "flood_probability": 0.95, "risk_level": "extreme", "high_risk_days": 15 },
+                        { "month_name": "July", "expected_rainfall_mm": 650, "flood_probability": 0.98, "risk_level": "extreme", "high_risk_days": 22 },
+                        { "month_name": "August", "expected_rainfall_mm": 480, "flood_probability": 0.92, "risk_level": "extreme", "high_risk_days": 12 },
+                        { "month_name": "September", "expected_rainfall_mm": 220, "flood_probability": 0.55, "risk_level": "high", "high_risk_days": 5 },
+                        { "month_name": "October", "expected_rainfall_mm": 180, "flood_probability": 0.45, "risk_level": "medium", "high_risk_days": 2 },
+                        { "month_name": "November", "expected_rainfall_mm": 90, "flood_probability": 0.25, "risk_level": "low", "high_risk_days": 0 },
+                        { "month_name": "December", "expected_rainfall_mm": 35, "flood_probability": 0.12, "risk_level": "low", "high_risk_days": 0 }
                     ]
                 }
             }
@@ -112,20 +68,26 @@
             "forecast": {
                 "yearly": {
                     "yearly_summary": {
+                        "expected_rainfall_mm": 2130,
+                        "peak_risk_month": "July",
+                        "total_high_risk_days": 42,
                         "peak_risk_score": 0.92,
-                        "flood_probability": 0.88
+                        "flood_probability": 0.88,
+                        "high_risk_months": ["June", "July", "August", "September"]
                     },
                     "monthly_forecast": [
-                        {
-                            "month_name": "January",
-                            "expected_rainfall_mm": 15,
-                            "flood_probability": 0.02
-                        },
-                        {
-                            "month_name": "July",
-                            "expected_rainfall_mm": 450,
-                            "flood_probability": 0.92
-                        }
+                        { "month_name": "January", "expected_rainfall_mm": 15, "flood_probability": 0.02, "risk_level": "low", "high_risk_days": 0 },
+                        { "month_name": "February", "expected_rainfall_mm": 20, "flood_probability": 0.03, "risk_level": "low", "high_risk_days": 0 },
+                        { "month_name": "March", "expected_rainfall_mm": 25, "flood_probability": 0.05, "risk_level": "low", "high_risk_days": 0 },
+                        { "month_name": "April", "expected_rainfall_mm": 40, "flood_probability": 0.10, "risk_level": "low", "high_risk_days": 0 },
+                        { "month_name": "May", "expected_rainfall_mm": 100, "flood_probability": 0.25, "risk_level": "medium", "high_risk_days": 2 },
+                        { "month_name": "June", "expected_rainfall_mm": 250, "flood_probability": 0.60, "risk_level": "high", "high_risk_days": 10 },
+                        { "month_name": "July", "expected_rainfall_mm": 450, "flood_probability": 0.92, "risk_level": "extreme", "high_risk_days": 18 },
+                        { "month_name": "August", "expected_rainfall_mm": 400, "flood_probability": 0.85, "risk_level": "extreme", "high_risk_days": 15 },
+                        { "month_name": "September", "expected_rainfall_mm": 280, "flood_probability": 0.65, "risk_level": "high", "high_risk_days": 8 },
+                        { "month_name": "October", "expected_rainfall_mm": 120, "flood_probability": 0.30, "risk_level": "medium", "high_risk_days": 2 },
+                        { "month_name": "November", "expected_rainfall_mm": 20, "flood_probability": 0.05, "risk_level": "low", "high_risk_days": 0 },
+                        { "month_name": "December", "expected_rainfall_mm": 10, "flood_probability": 0.02, "risk_level": "low", "high_risk_days": 0 }
                     ]
                 }
             }
@@ -151,15 +113,26 @@
             "forecast": {
                 "yearly": {
                     "yearly_summary": {
+                        "expected_rainfall_mm": 3930,
+                        "peak_risk_month": "July",
+                        "total_high_risk_days": 65,
                         "peak_risk_score": 0.88,
-                        "flood_probability": 0.75
+                        "flood_probability": 0.75,
+                        "high_risk_months": ["May", "June", "July", "August", "September"]
                     },
                     "monthly_forecast": [
-                        {
-                            "month_name": "January",
-                            "expected_rainfall_mm": 25,
-                            "flood_probability": 0.05
-                        }
+                        { "month_name": "January", "expected_rainfall_mm": 25, "flood_probability": 0.05, "risk_level": "low", "high_risk_days": 0 },
+                        { "month_name": "February", "expected_rainfall_mm": 45, "flood_probability": 0.08, "risk_level": "low", "high_risk_days": 0 },
+                        { "month_name": "March", "expected_rainfall_mm": 90, "flood_probability": 0.15, "risk_level": "low", "high_risk_days": 1 },
+                        { "month_name": "April", "expected_rainfall_mm": 220, "flood_probability": 0.40, "risk_level": "medium", "high_risk_days": 5 },
+                        { "month_name": "May", "expected_rainfall_mm": 450, "flood_probability": 0.70, "risk_level": "high", "high_risk_days": 12 },
+                        { "month_name": "June", "expected_rainfall_mm": 750, "flood_probability": 0.95, "risk_level": "extreme", "high_risk_days": 20 },
+                        { "month_name": "July", "expected_rainfall_mm": 850, "flood_probability": 0.98, "risk_level": "extreme", "high_risk_days": 25 },
+                        { "month_name": "August", "expected_rainfall_mm": 680, "flood_probability": 0.92, "risk_level": "extreme", "high_risk_days": 18 },
+                        { "month_name": "September", "expected_rainfall_mm": 450, "flood_probability": 0.75, "risk_level": "high", "high_risk_days": 10 },
+                        { "month_name": "October", "expected_rainfall_mm": 250, "flood_probability": 0.45, "risk_level": "medium", "high_risk_days": 4 },
+                        { "month_name": "November", "expected_rainfall_mm": 60, "flood_probability": 0.15, "risk_level": "low", "high_risk_days": 1 },
+                        { "month_name": "December", "expected_rainfall_mm": 30, "flood_probability": 0.05, "risk_level": "low", "high_risk_days": 0 }
                     ]
                 }
             }
