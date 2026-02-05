@@ -397,12 +397,12 @@ async def reset_cache(
 
 
 # Mount static files
-# Get absolute path to dashboard directory
-dashboard_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "dashboard"))
-if os.path.exists(dashboard_path):
-    app.mount("/", StaticFiles(directory=dashboard_path, html=True), name="dashboard")
+# Get absolute path to frontend directory
+frontend_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "frontend"))
+if os.path.exists(frontend_path):
+    app.mount("/", StaticFiles(directory=frontend_path, html=True), name="frontend")
 else:
-    print(f"Warning: Dashboard directory not found at {dashboard_path}")
+    print(f"Warning: Frontend directory not found at {frontend_path}")
 
 
 # ============================================
@@ -412,4 +412,4 @@ else:
 if __name__ == "__main__":
     import uvicorn
     # Use string reference for reload to work
-    uvicorn.run("src.main:app", host="0.0.0.0", port=8001, reload=True)
+    uvicorn.run("backend.main:app", host="0.0.0.0", port=8001, reload=True)

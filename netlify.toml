@@ -1,5 +1,5 @@
 [build]
-  publish = "dashboard"
+  publish = "frontend"
   functions = "netlify/functions"
 
 [[redirects]]
